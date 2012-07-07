@@ -1,10 +1,19 @@
 LUA = $(HOME)/local/lua/bin/lua
 
-test: dest/Language.lua
-	$(LUA) $^
+md/Language.md: lua/Language.lua
+	$(LUA) $^ > $@
 
-dest/Language.lua: dest ../embedding-lua-wiki/Language.md tang.lua
+lua/Language.lua: lua eg md ../embedding-lua-wiki/Language.md tang.lua
 	$(LUA) tang.lua ../embedding-lua-wiki/Language.md > $@
 
-dest:
+lua:
 	mkdir $@
+
+eg:
+	mkdir $@
+
+md:
+	mkdir $@
+
+clean:
+	rm -rf lua eg md *~

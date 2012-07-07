@@ -14,7 +14,7 @@ function code (filename, proc)
 
    local f, err = loadfile(filename)
    if not f then
-      print("SYNTAX ERROR", err)
+      io.stderr:write("SYNTAX ERROR: ", err, "\n")
       os.exit(false)
    end
 end
