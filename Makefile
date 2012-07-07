@@ -1,18 +1,22 @@
 LUA = $(HOME)/local/lua/bin/lua
+MARKDOWN = Markdown.pl
+
+all: md/Language.md html/Language.html
+
+md/Language.md: eg md
 
 md/Language.md: lua/Language.lua
-	$(LUA) $^ > $@
+	$(LUA) $< > $@
 
-lua/Language.lua: lua eg md ../embedding-lua-wiki/Language.md tang.lua
+lua/Language.lua: lua ../embedding-lua-wiki/Language.md tang.lua
 	$(LUA) tang.lua ../embedding-lua-wiki/Language.md > $@
 
-lua:
-	mkdir $@
+html/Language.html: html
 
-eg:
-	mkdir $@
+html/Language.html: md/Language.md
+	$(MARKDOWN) $< > $@
 
-md:
+lua eg md html:
 	mkdir $@
 
 clean:
