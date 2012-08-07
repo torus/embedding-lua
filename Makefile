@@ -1,7 +1,7 @@
 LUA = $(HOME)/local/lua/bin/lua
 MARKDOWN = Markdown.pl
 
-all: md/Language.md html/Language.html
+all: html/Language.html
 
 md/Language.md: eg md
 

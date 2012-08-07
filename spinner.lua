@@ -18,3 +18,9 @@ function code (filename, proc)
       os.exit(false)
    end
 end
+
+function codetmp (proc)
+   local filename = os.tmpname()
+   code(filename, proc)
+   os.remove(filename)
+end
