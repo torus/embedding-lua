@@ -2,7 +2,7 @@ function spin (line)
    print(line)
 end
 
-function code (filename, proc)
+function code_aux (filename, proc)
    local out = io.open(filename, "w")
    local function local_spin (line)
       out:write(line, "\n")
@@ -19,8 +19,12 @@ function code (filename, proc)
    end
 end
 
+function code (filename, proc)
+   code_aux("eg/" .. filename, proc)
+end
+
 function codetmp (proc)
    local filename = os.tmpname()
-   code(filename, proc)
+   code_aux(filename, proc)
    os.remove(filename)
 end
