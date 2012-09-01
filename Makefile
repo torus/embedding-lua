@@ -1,5 +1,6 @@
 LUA = $(HOME)/local/lua/bin/lua
-MARKDOWN = Markdown.pl
+MARKDOWN = perl md2html.pl
+# MARKDOWN = Markdown.pl
 MD_SRC_DIR = ../embedding-lua-wiki
 DOCPUB_DIR = docpub
 
