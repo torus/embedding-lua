@@ -16,7 +16,10 @@ DOCPUB_MDS = $(addprefix $(DOCPUB_DIR)/md/,$(addsuffix .md,$(PAGES)))
 
 all: $(HTMLS)
 
-update: $(DOCPUB_MDS) $(DOCPUB_DIR)
+update-gh-pages: $(HTMLS)
+	cd html && git commit -m "updated as of `date`" && git push origin master:gh-pages
+
+update-docpub: $(DOCPUB_MDS) $(DOCPUB_DIR)
 	cd $(DOCPUB_DIR) && git commit -m "updated as of `date`" && git push origin master
 
 $(DOCPUB_DIR)/md/%.md: md/%.md
