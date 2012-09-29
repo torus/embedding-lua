@@ -2,15 +2,19 @@ function spin (line)
    print(line)
 end
 
-function code_aux (filename, proc)
+function write_code_to_file (filename, proc)
    local out = io.open(filename, "w")
    local function local_spin (line)
-      out:write(line, "\n")
+      out:write(line:sub(5), "\n")
       out:flush()
       spin(line)
    end
    proc(local_spin)
    out:close()
+end
+
+function code_aux (filename, proc)
+   write_code_to_file(filename, proc)
 
    local f, err = loadfile(filename)
    if not f then
@@ -21,6 +25,10 @@ end
 
 function code (filename, proc)
    code_aux("eg/" .. filename, proc)
+end
+
+function code_any (filename, proc)
+   write_code_to_file("eg/" .. filename, proc)
 end
 
 function codetmp (proc)
