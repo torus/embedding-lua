@@ -4,7 +4,8 @@ MARKDOWN = perl md2html.pl
 MD_SRC_DIR = ../embedding-lua-wiki
 DOCPUB_DIR = docpub
 
-PAGES = $(basename $(notdir $(wildcard $(MD_SRC_DIR)/*.md)))
+MD_SRCS = $(wildcard $(MD_SRC_DIR)/*.md)
+PAGES = $(basename $(notdir $(MD_SRCS)))
 HTMLS = $(addprefix html/,$(addsuffix .html,$(PAGES)))
 LUAS = $(addprefix lua/,$(addsuffix .lua,$(PAGES)))
 MDS = $(addprefix md/,$(addsuffix .md,$(PAGES)))
@@ -15,6 +16,10 @@ DOCPUB_MDS = $(addprefix $(DOCPUB_DIR)/md/,$(addsuffix .md,$(PAGES)))
 # 	echo $(HTMLS)
 
 all: $(HTMLS)
+
+list-todos:
+	@echo Remaning TODOs...
+	@grep -i -e '\<\(\(TODO\)\|\(FIXME\)\):' $(MD_SRCS) || echo "ALL DONE!"
 
 update-gh-pages: $(HTMLS)
 	cd html && git commit -am "updated as of `date`" && git push origin master:gh-pages
