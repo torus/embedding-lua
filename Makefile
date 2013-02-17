@@ -11,15 +11,28 @@ LUAS = $(addprefix lua/,$(addsuffix .lua,$(PAGES)))
 MDS = $(addprefix md/,$(addsuffix .md,$(PAGES)))
 DOCPUB_MDS = $(addprefix $(DOCPUB_DIR)/md/,$(addsuffix .md,$(PAGES)))
 
+WRAPPERS = $(patsubst %.i,%_wrap.cxx,$(wildcard eg/*.i))
+WRAPPER_OBJS = $(patsubst %.cxx,%.o,$(WRAPPERS))
+
 # test:
 # 	echo $(PAGES)
 # 	echo $(HTMLS)
 
-all: $(HTMLS)
+.PHONY: test-swig list-todos
+
+all: $(HTMLS) test-swig list-todos
 
 list-todos:
 	@echo Remaning TODOs...
 	@grep -i -e '\<\(\(TODO\)\|\(FIXME\)\):' $(MD_SRCS) || echo "ALL DONE!"
+
+test-swig: $(WRAPPER_OBJS)
+
+%_wrap.o: %_wrap.cxx
+	g++ -c -I ~/local/lua/include -I ~/src/Box2D_v2.2.1 -o $@ $?
+
+%_wrap.cxx: %.i
+	swig -lua -c++ -o $@ $?
 
 update-gh-pages: $(HTMLS)
 	cd html && git commit -am "updated as of `date`" && git push origin master:gh-pages
