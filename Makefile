@@ -5,6 +5,9 @@ MARKDOWN = markdown
 MD_SRC_DIR = ../wiki
 DOCPUB_DIR = docpub
 
+HTML_HEADER = header.html
+HTML_FOOTER = footer.html
+
 MD_SRCS = $(wildcard $(MD_SRC_DIR)/*.md)
 PAGES = $(basename $(notdir $(MD_SRCS)))
 HTMLS = $(addprefix html/,$(addsuffix .html,$(PAGES)))
@@ -30,13 +33,13 @@ list-todos:
 test-swig: $(WRAPPER_OBJS)
 
 %_wrap.o: %_wrap.cxx
-	g++ -c -I ~/local/lua/include -I ~/src/Box2D_v2.2.1 -o $@ $?
+	g++ -c -I ~/local/lua/include -I /usr/include/libxml2 -I ~/src/Box2D_v2.2.1 -o $@ $?
 
 %_wrap.cxx: %.i
 	swig -lua -c++ -o $@ $?
 
 update-gh-pages: $(HTMLS)
-	cd html && git commit -am "updated as of `date`" && git push origin master:gh-pages
+	cd html && git commit -am "updated as of `date`" && git push origin gh-pages
 
 update-docpub: $(DOCPUB_MDS) $(DOCPUB_DIR)
 	cd $(DOCPUB_DIR) && git commit -m "updated as of `date`" && git push origin master
@@ -58,7 +61,9 @@ $(HTMLS): html
 $(MDS): eg md
 
 html/%.html: md/%.md
-	$(MARKDOWN) $< > $@
+	cat $(HTML_HEADER) > $@
+	$(MARKDOWN) $< >> $@
+	cat $(HTML_FOOTER) >> $@
 
 lua eg md html:
 	mkdir $@
