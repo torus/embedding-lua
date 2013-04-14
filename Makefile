@@ -1,7 +1,8 @@
 LUA = $(HOME)/local/lua/bin/lua
-MARKDOWN = perl md2html.pl
+# MARKDOWN = perl md2html.pl
 # MARKDOWN = Markdown.pl
-MD_SRC_DIR = ../embedding-lua-wiki
+MARKDOWN = markdown
+MD_SRC_DIR = ../wiki
 DOCPUB_DIR = docpub
 
 MD_SRCS = $(wildcard $(MD_SRC_DIR)/*.md)
