@@ -3,3 +3,5 @@
 /eg
 /html
 
+*.so
+*_wrap.c
