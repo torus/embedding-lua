@@ -1,6 +1,6 @@
-class TestBase {
+class GameMod {
 public:
-    TestBase(lua_State *lstat) : running_(true), L(lstat) {}
+    GameMod(lua_State *lstat) : running_(true), L(lstat) {}
     virtual void init() {}
     virtual bool running() const {return running_;}
     virtual void update() {}
@@ -13,4 +13,4 @@ private:
     bool running_;
 };
 
-int game_main(int, char**, TestBase*);
+int game_main(int, char**, GameMod*);

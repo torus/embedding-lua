@@ -5,3 +5,4 @@
 
 *.so
 *_wrap.c
+lua_call
