@@ -2,10 +2,18 @@ require "nc"
 
 function main()
    nc.keypad(nc.stdscr, true)
-   nc.mvaddstr(10, 10, "hoge" .. tostring(nc.KEY_ENTER))
+   nc.nodelay(nc.stdscr, true)
+   nc.noecho()
+
    local ch = nc.getch()
+   local count = 0
    while ch ~= 27 do		-- ESCAPE
-      nc.mvaddstr(10, 20, tostring(ch))
+      count = count + 1
+      if ch > 0 then
+	 nc.mvaddstr(10, 20, tostring(ch) .. "     ")
+	 count = 0
+      end
+      nc.mvaddstr(10, 30, count .. "     ")
       nc.refresh()
       ch = nc.getch()
    end

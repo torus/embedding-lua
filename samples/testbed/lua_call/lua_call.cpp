@@ -22,3 +22,10 @@ void Test_LuaCall::init()
 
     end();
 }
+
+int main(int argc, char **argv) {
+    lua_State *L = luaL_newstate();
+    luaL_openlibs(L);
+
+    return game_main(argc, argv, new Test_LuaCall(L));
+}
