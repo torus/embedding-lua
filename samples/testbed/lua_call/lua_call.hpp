@@ -1,4 +1,4 @@
-#include "game_engine.hpp"
+#include "../testbed/game_engine.hpp"
 
 class Test_LuaCall : public GameMod {
 public:
