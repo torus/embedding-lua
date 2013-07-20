@@ -8,6 +8,7 @@ LUAOBJS = $(patsubst %.c,lua/%.o,$(LUASRCS))
 OBJS = $(LUAOBJS) helloworld.o
 
 CFLAGS = -Ilua
+LFLAGS = -lm
 
 TARGET = helloworld
 
@@ -15,7 +16,7 @@ run: $(TARGET)
 	./$^
 
 $(TARGET): $(OBJS)
-	$(CC) -o $@ $^
+	$(CC) -o $@ $(LFLAGS) $^
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $^
