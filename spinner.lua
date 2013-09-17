@@ -36,3 +36,11 @@ function codetmp (proc)
    code_aux(filename, proc)
    os.remove(filename)
 end
+
+function include_code (filename)
+   local infile = io.open(filename)
+   for line in infile:lines() do
+      spin("    " .. line)
+   end
+   infile:close()
+end
