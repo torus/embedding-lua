@@ -22,9 +22,12 @@ WRAPPER_OBJS = $(patsubst %.cxx,%.o,$(WRAPPERS))
 # 	echo $(PAGES)
 # 	echo $(HTMLS)
 
-.PHONY: test-swig list-todos
+.PHONY: test-swig list-todos hello-world
 
-all: $(HTMLS) test-swig list-todos
+all: $(HTMLS) test-swig list-todos hello-world
+
+hello-world:
+	$(MAKE) -C samples/helloworld
 
 list-todos:
 	@echo Remaning TODOs...

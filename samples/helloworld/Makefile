@@ -7,7 +7,7 @@ LUASRCS = lapi.c lauxlib.c lbaselib.c lbitlib.c lcode.c lcorolib.c      \
 LUAOBJS = $(patsubst %.c,lua-5.2.2/src/%.o,$(LUASRCS))
 OBJS = $(LUAOBJS) helloworld.o
 
-CFLAGS = -Ilua
+CFLAGS = -Ilua-5.2.2/src
 LFLAGS = -lm
 
 TARGET = helloworld
@@ -25,4 +25,4 @@ $(TARGET): $(OBJS)
 	$(CXX) -c $(CFLAGS) -o $@ $^
 
 clean:
-	rm -f $(OBJS) *~
+	rm -f $(OBJS) $(TARGET) *~
