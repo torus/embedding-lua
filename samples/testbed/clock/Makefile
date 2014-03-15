@@ -1,4 +1,4 @@
-TARGET = one
+TARGET = clock
 
 TESTBED = ../testbed
 

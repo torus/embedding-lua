@@ -37,6 +37,7 @@ public:
     void init();
     void update(double elapsed);
     bool running() const;
+    lua_State* luaState() const {return L;}
 
     void dieIfFail(int state) const;
 
