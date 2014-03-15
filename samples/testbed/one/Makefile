@@ -1,10 +1,12 @@
-LUA = $(HOME)/local/lua/bin/lua
+TARGET = one
+
+LUA_DIR = $(HOME)/local/lua
+
 TESTBED = ../testbed
 ENGINE_OBJS = ncurses_wrap.o game_engine.o
 OBJECTS = $(patsubst %.o,$(TESTBED)/%.o,$(ENGINE_OBJS)) main.o
-TARGET = one
-CFLAGS = -I$(HOME)/local/lua/include -I$(TESTBED)
-LFLAGS = -L$(HOME)/local/lua/lib -lncurses -llua
+CFLAGS = -I$(LUA_DIR)/include -I$(TESTBED)
+LFLAGS = -L$(LUA_DIR)/lib -lncurses -llua
 
 all: $(TARGET)
 	./$(TARGET)
