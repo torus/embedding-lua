@@ -17,3 +17,6 @@ $(TARGET): $(OBJECTS)
 
 %.o: %.cpp
 	$(CXX) -c -o $@ $(CFLAGS) $^
+
+clean:
+	rm -f *.o *~ $(TARGET)

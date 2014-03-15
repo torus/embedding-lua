@@ -5,10 +5,10 @@ function init()
    }
 end
 
-local count = 20
+local count = 10
 function update(stat, elapsed)
    count = count - 1
-   print(stat, elapsed, count)
+   print(count, "elapsed time:", string.format("%2.7f", elapsed))
 
    if count < 0 then
       stat.running = false
@@ -16,6 +16,5 @@ function update(stat, elapsed)
 end
 
 function running(stat)
-   print(stat.running)
    return stat.running
 end
