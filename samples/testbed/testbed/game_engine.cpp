@@ -10,7 +10,7 @@ int game_main(int argc, char **argv, GameMod *t) {
 
     while (t->running()) {
         boost::timer::nanosecond_type elapsed = timer.elapsed().wall;
-	t->update((elapsed - prev_time) / 1000000000.0);
+        t->update((elapsed - prev_time) / 1000000000.0);
         prev_time = elapsed;
     }
 
