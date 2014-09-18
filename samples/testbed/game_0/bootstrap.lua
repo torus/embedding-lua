@@ -1,4 +1,4 @@
--- Game 0
+-- Game 0 - Snake game
 
 GameState = {}
 
@@ -19,13 +19,6 @@ function GameState:update_key()
    end
 end
 
-Entity = {}
-
-function Entity:addEventListener(el)
-   table.insert(self.event_listeners, el)
-   return self
-end
-
 function init_curses()
    nc.initscr()
 
@@ -33,6 +26,7 @@ function init_curses()
    nc.nodelay(nc.stdscr, true)
    nc.noecho()
    nc.cbreak()
+   nc.curs_set(0)
 end
 
 function clean_curses()
@@ -42,20 +36,54 @@ end
 function main_coro(stat, elapsed)
    init_curses()
 
+   stat, elapsed = coroutine.yield()
+
+   math.randomseed(elapsed * 1000000)
+
    local width, height = nc.getmaxx(nc.stdscr), nc.getmaxy(nc.stdscr)
-   nc.mvaddstr(0, 1, string.format("size: % 3d, % 3d   press ESC to quit", width, height))
+   nc.mvaddstr(0, 1, string.format("size: % 3d, % 3d, seed: %f     press ESC to quit",
+                                   width, height, elapsed))
+
+   local stage_size = {width = width, height = height - 1}
+   local stage_pos = {x = 0, y = 1}
+
+   local head_pos = {x = math.random(stage_size.width) - 1,
+                     y = math.random(stage_size.height) - 1}
+   local angle = math.random(0, 3)
+   local length = 4
+   local pos_in_history = 1
 
    while true do
       stat:update_key()
       if stat.key_state_down[27] then
          break
+      elseif stat.key_state_down[nc.KEY_RIGHT] then
+         angle = 0
+      elseif stat.key_state_down[nc.KEY_DOWN] then
+         angle = 1
+      elseif stat.key_state_down[nc.KEY_LEFT] then
+         angle = 2
+      elseif stat.key_state_down[nc.KEY_UP] then
+         angle = 3
       end
 
-      nc.mvaddstr(1, 1, string.format("FPS: %6.4f     ", 1 / elapsed))
-      local text = os.date()
-      nc.mvaddstr(math.floor(height / 2), math.floor((width - #text) / 2), text)
-      nc.refresh()
+      if angle == 0 then
+         head_pos.x = head_pos.x + 1
+      elseif angle == 1 then
+         head_pos.y = head_pos.y + 1
+      elseif angle == 2 then
+         head_pos.x = head_pos.x - 1
+      elseif angle == 3 then
+         head_pos.y = head_pos.y - 1
+      end
 
+      head_pos.x = head_pos.x % stage_size.width
+      head_pos.y = head_pos.y % stage_size.height
+
+      nc.mvaddstr(head_pos.y + stage_pos.y,
+                  head_pos.x + stage_pos.x, "@")
+
+      nc.refresh()
       sleep(0.033)
       stat, elapsed = coroutine.yield()
    end
