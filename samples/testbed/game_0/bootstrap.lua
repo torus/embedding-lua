@@ -51,7 +51,8 @@ function main_coro(stat, elapsed)
                      y = math.random(stage_size.height) - 1}
    local angle = math.random(0, 3)
    local length = 4
-   local pos_in_history = 1
+   local pos_in_trajectory = 1
+   local trajectory = {}
 
    while true do
       stat:update_key()
@@ -82,6 +83,13 @@ function main_coro(stat, elapsed)
 
       nc.mvaddstr(head_pos.y + stage_pos.y,
                   head_pos.x + stage_pos.x, "@")
+
+      local tail = trajectory[pos_in_trajectory]
+      if tail then
+         nc.mvaddstr(tail.y + stage_pos.y, tail.x + stage_pos.x, " ")
+      end
+      trajectory[pos_in_trajectory] = {x = head_pos.x, y = head_pos.y}
+      pos_in_trajectory = (pos_in_trajectory + 1) % length
 
       nc.refresh()
       sleep(0.033)
