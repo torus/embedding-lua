@@ -53,6 +53,11 @@ function main_coro(stat, elapsed)
    local length = 4
    local pos_in_trajectory = 1
    local trajectory = {}
+   local food_pos = {x = math.random(stage_size.width) - 1,
+                     y = math.random(stage_size.height) - 1}
+
+   nc.mvaddstr(food_pos.y + stage_pos.y,
+               food_pos.x + stage_pos.x, "#")
 
    while true do
       stat:update_key()
@@ -80,6 +85,15 @@ function main_coro(stat, elapsed)
 
       head_pos.x = head_pos.x % stage_size.width
       head_pos.y = head_pos.y % stage_size.height
+
+      if head_pos.x == food_pos.x and head_pos.y == food_pos.y then
+         food_pos = {x = math.random(stage_size.width) - 1,
+                     y = math.random(stage_size.height) - 1}
+         length = length + 2
+         -- えさが体に埋まらないようにする
+         nc.mvaddstr(food_pos.y + stage_pos.y,
+                     food_pos.x + stage_pos.x, "#")
+      end
 
       nc.mvaddstr(head_pos.y + stage_pos.y,
                   head_pos.x + stage_pos.x, "@")
