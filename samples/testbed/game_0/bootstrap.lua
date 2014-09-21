@@ -56,12 +56,34 @@ function main_coro(stat, elapsed)
    local food_pos = {x = math.random(stage_size.width) - 1,
                      y = math.random(stage_size.height) - 1}
 
+   local finished = false
+
+   nc.mvaddstr(math.floor(stage_size.height / 2) + stage_pos.y - 1,
+               math.floor(stage_size.width / 2) + stage_pos.x - 10,
+               "Press ENTER to start")
+
+   while not finished do
+      stat:update_key()
+      if stat.key_state_down[27] then -- ESCAPE
+         finished = true
+      elseif stat.key_state_down[10] then -- ENTER
+         break
+      end
+      sleep(0.033)
+      stat, elapsed = coroutine.yield()
+   end
+
+   nc.mvaddstr(math.floor(stage_size.height / 2) + stage_pos.y - 1,
+               math.floor(stage_size.width / 2) + stage_pos.x - 10,
+               "                    ")
+
    nc.mvaddstr(food_pos.y + stage_pos.y,
                food_pos.x + stage_pos.x, "#")
 
-   while true do
+   while not finished do
       stat:update_key()
       if stat.key_state_down[27] then
+         finished = true
          break
       elseif stat.key_state_down[nc.KEY_RIGHT] then
          angle = 0
@@ -97,6 +119,17 @@ function main_coro(stat, elapsed)
 
       nc.mvaddstr(head_pos.y + stage_pos.y,
                   head_pos.x + stage_pos.x, "@")
+
+      for i, v in ipairs(trajectory) do
+         if v.x == head_pos.x and v.y == head_pos.y then
+            finished = true
+            nc.mvaddstr(head_pos.y + stage_pos.y,
+                        head_pos.x + stage_pos.x, "*")
+            nc.refresh()
+            sleep(1)
+            break
+         end
+      end
 
       local tail = trajectory[pos_in_trajectory]
       if tail then
