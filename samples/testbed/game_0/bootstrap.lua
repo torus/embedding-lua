@@ -33,6 +33,24 @@ function clean_curses()
    nc.endwin()
 end
 
+function GameState:check_key_and_game_finished(direction)
+   local finished = false
+
+   if self.key_state_down[27] then
+      finished = true
+   elseif self.key_state_down[nc.KEY_RIGHT] then
+      direction = 0
+   elseif self.key_state_down[nc.KEY_DOWN] then
+      direction = 1
+   elseif self.key_state_down[nc.KEY_LEFT] then
+      direction = 2
+   elseif self.key_state_down[nc.KEY_UP] then
+      direction = 3
+   end
+
+   return finished, direction
+end
+
 function main_coro(stat, elapsed)
    init_curses()
 
@@ -49,7 +67,7 @@ function main_coro(stat, elapsed)
 
    local head_pos = {x = math.random(stage_size.width) - 1,
                      y = math.random(stage_size.height) - 1}
-   local angle = math.random(0, 3)
+   local direction = math.random(0, 3)
    local length = 4
    local pos_in_trajectory = 1
    local trajectory = {}
@@ -82,26 +100,17 @@ function main_coro(stat, elapsed)
 
    while not finished do
       stat:update_key()
-      if stat.key_state_down[27] then
-         finished = true
-         break
-      elseif stat.key_state_down[nc.KEY_RIGHT] then
-         angle = 0
-      elseif stat.key_state_down[nc.KEY_DOWN] then
-         angle = 1
-      elseif stat.key_state_down[nc.KEY_LEFT] then
-         angle = 2
-      elseif stat.key_state_down[nc.KEY_UP] then
-         angle = 3
-      end
 
-      if angle == 0 then
+      finished, direction = stat:check_key_and_game_finished(direction)
+      if finished then break end
+
+      if direction == 0 then
          head_pos.x = head_pos.x + 1
-      elseif angle == 1 then
+      elseif direction == 1 then
          head_pos.y = head_pos.y + 1
-      elseif angle == 2 then
+      elseif direction == 2 then
          head_pos.x = head_pos.x - 1
-      elseif angle == 3 then
+      elseif direction == 3 then
          head_pos.y = head_pos.y - 1
       end
 
