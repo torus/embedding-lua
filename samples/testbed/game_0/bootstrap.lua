@@ -51,6 +51,24 @@ function GameState:check_key_and_game_finished(direction)
    return finished, direction
 end
 
+function next_position(pos, dir, stage_size)
+   local x, y = pos.x, pos.y
+   if dir == 0 then
+      x = pos.x + 1
+   elseif dir == 1 then
+      y = pos.y + 1
+   elseif dir == 2 then
+      x = pos.x - 1
+   elseif dir == 3 then
+      y = pos.y - 1
+   end
+
+   x = x % stage_size.width
+   y = y % stage_size.height
+
+   return {x = x, y = y}
+end
+
 function main_coro(stat, elapsed)
    init_curses()
 
@@ -104,18 +122,7 @@ function main_coro(stat, elapsed)
       finished, direction = stat:check_key_and_game_finished(direction)
       if finished then break end
 
-      if direction == 0 then
-         head_pos.x = head_pos.x + 1
-      elseif direction == 1 then
-         head_pos.y = head_pos.y + 1
-      elseif direction == 2 then
-         head_pos.x = head_pos.x - 1
-      elseif direction == 3 then
-         head_pos.y = head_pos.y - 1
-      end
-
-      head_pos.x = head_pos.x % stage_size.width
-      head_pos.y = head_pos.y % stage_size.height
+      head_pos = next_position(head_pos, direction, stage_size)
 
       if head_pos.x == food_pos.x and head_pos.y == food_pos.y then
          food_pos = {x = math.random(stage_size.width) - 1,
