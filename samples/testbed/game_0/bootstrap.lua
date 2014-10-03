@@ -69,6 +69,17 @@ function next_position(pos, dir, stage_size)
    return {x = x, y = y}
 end
 
+function random_position(stage_size)
+   return {x = math.random(stage_size.width) - 1,
+           y = math.random(stage_size.height) - 1}
+end
+
+function put_string(pos, stage_pos, str)
+   nc.mvaddstr(pos.y + stage_pos.y,
+               pos.x + stage_pos.x,
+               str)
+end
+
 function main_coro(stat, elapsed)
    init_curses()
 
@@ -83,20 +94,19 @@ function main_coro(stat, elapsed)
    local stage_size = {width = width, height = height - 1}
    local stage_pos = {x = 0, y = 1}
 
-   local head_pos = {x = math.random(stage_size.width) - 1,
-                     y = math.random(stage_size.height) - 1}
+   local head_pos = random_position(stage_size)
    local direction = math.random(0, 3)
    local length = 4
    local pos_in_trajectory = 1
    local trajectory = {}
-   local food_pos = {x = math.random(stage_size.width) - 1,
-                     y = math.random(stage_size.height) - 1}
+   local food_pos = random_position(stage_size)
 
    local finished = false
 
-   nc.mvaddstr(math.floor(stage_size.height / 2) + stage_pos.y - 1,
-               math.floor(stage_size.width / 2) + stage_pos.x - 10,
-               "Press ENTER to start")
+   put_string({y = math.floor(stage_size.height / 2) - 1,
+               x = math.floor(stage_size.width / 2) - 10},
+              stage_pos,
+              "Press ENTER to start")
 
    while not finished do
       stat:update_key()
@@ -109,12 +119,12 @@ function main_coro(stat, elapsed)
       stat, elapsed = coroutine.yield()
    end
 
-   nc.mvaddstr(math.floor(stage_size.height / 2) + stage_pos.y - 1,
-               math.floor(stage_size.width / 2) + stage_pos.x - 10,
-               "                    ")
+   put_string({y = math.floor(stage_size.height / 2) - 1,
+               x = math.floor(stage_size.width / 2) - 10},
+              stage_pos,
+              "                    ")
 
-   nc.mvaddstr(food_pos.y + stage_pos.y,
-               food_pos.x + stage_pos.x, "#")
+   put_string(food_pos, stage_pos, "#")
 
    while not finished do
       stat:update_key()
@@ -125,12 +135,10 @@ function main_coro(stat, elapsed)
       head_pos = next_position(head_pos, direction, stage_size)
 
       if head_pos.x == food_pos.x and head_pos.y == food_pos.y then
-         food_pos = {x = math.random(stage_size.width) - 1,
-                     y = math.random(stage_size.height) - 1}
+         food_pos = random_position(stage_size)
          length = length + 2
-         -- えさが体に埋まらないようにする
-         nc.mvaddstr(food_pos.y + stage_pos.y,
-                     food_pos.x + stage_pos.x, "#")
+
+         put_string(food_pos, stage_pos, "#")
       end
 
       nc.mvaddstr(head_pos.y + stage_pos.y,
