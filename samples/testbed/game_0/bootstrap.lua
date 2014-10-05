@@ -51,6 +51,20 @@ function GameState:check_key_and_game_finished(direction)
    return finished, direction
 end
 
+function GameState:next_frame()
+   local prev_time = self.frame_start_time
+   local cur_time = elapsed_time()
+
+   if prev_time and prev_time > 0 then
+      local dur = 0.033 - (cur_time - prev_time)
+      if dur > 0 then
+         sleep(dur)
+      end
+   end
+   self.frame_start_time = elapsed_time()
+   local stat, elapsed = coroutine.yield()
+end
+
 function next_position(pos, dir, stage_size)
    local x, y = pos.x, pos.y
    if dir == 0 then
@@ -83,13 +97,14 @@ end
 function main_coro(stat, elapsed)
    init_curses()
 
-   stat, elapsed = coroutine.yield()
+   -- stat, elapsed = coroutine.yield()
+   stat:next_frame()
 
-   math.randomseed(elapsed * 1000000)
+   -- math.randomseed(elapsed * 1000000)
 
    local width, height = nc.getmaxx(nc.stdscr), nc.getmaxy(nc.stdscr)
-   nc.mvaddstr(0, 1, string.format("size: % 3d, % 3d, seed: %f     press ESC to quit",
-                                   width, height, elapsed))
+   nc.mvaddstr(0, 1, string.format("size: % 3d, % 3d     press ESC to quit",
+                                   width, height))
 
    local stage_size = {width = width, height = height - 1}
    local stage_pos = {x = 0, y = 1}
@@ -115,8 +130,9 @@ function main_coro(stat, elapsed)
       elseif stat.key_state_down[10] then -- ENTER
          break
       end
-      sleep(0.033)
-      stat, elapsed = coroutine.yield()
+      -- sleep(0.033)
+      -- stat, elapsed = coroutine.yield()
+      stat:next_frame()
    end
 
    put_string({y = math.floor(stage_size.height / 2) - 1,
@@ -163,8 +179,9 @@ function main_coro(stat, elapsed)
       pos_in_trajectory = (pos_in_trajectory + 1) % length
 
       nc.refresh()
-      sleep(0.033)
-      stat, elapsed = coroutine.yield()
+      -- sleep(0.033)
+      -- stat, elapsed = coroutine.yield()
+      stat:next_frame()
    end
 
    clean_curses()

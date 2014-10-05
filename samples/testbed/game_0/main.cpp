@@ -1,5 +1,6 @@
 #include <ctime>
 #include <cmath>
+#include <boost/timer/timer.hpp>
 #include <game_engine.hpp>
 
 extern "C" int luafunc_sleep(lua_State *L)
@@ -13,9 +14,21 @@ extern "C" int luafunc_sleep(lua_State *L)
     return 0;
 }
 
+static boost::timer::cpu_timer timer;
+
+extern "C" int luafunc_elapsed_time(lua_State *L)
+{
+    boost::timer::nanosecond_type elapsed = timer.elapsed().wall;
+    double sec = elapsed / 1000000000.;
+    lua_pushnumber(L, sec);
+
+    return 1;
+}
+
 int main(int argc, char **argv) {
     LuaGameEngine engine;
 
     lua_register(engine.luaState(), "sleep", luafunc_sleep);
+    lua_register(engine.luaState(), "elapsed_time", luafunc_elapsed_time);
     game_main(argc, argv, &engine);
 }
