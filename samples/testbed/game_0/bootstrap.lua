@@ -97,10 +97,7 @@ end
 function main_coro(stat, elapsed)
    init_curses()
 
-   -- stat, elapsed = coroutine.yield()
    stat:next_frame()
-
-   -- math.randomseed(elapsed * 1000000)
 
    local width, height = nc.getmaxx(nc.stdscr), nc.getmaxy(nc.stdscr)
    nc.mvaddstr(0, 1, string.format("size: % 3d, % 3d     press ESC to quit",
@@ -130,8 +127,6 @@ function main_coro(stat, elapsed)
       elseif stat.key_state_down[10] then -- ENTER
          break
       end
-      -- sleep(0.033)
-      -- stat, elapsed = coroutine.yield()
       stat:next_frame()
    end
 
@@ -179,8 +174,6 @@ function main_coro(stat, elapsed)
       pos_in_trajectory = (pos_in_trajectory + 1) % length
 
       nc.refresh()
-      -- sleep(0.033)
-      -- stat, elapsed = coroutine.yield()
       stat:next_frame()
    end
 
