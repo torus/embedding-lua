@@ -27,6 +27,7 @@ function init_curses()
    nc.noecho()
    nc.cbreak()
    nc.curs_set(0)
+   nc.set_escdelay(0)
 end
 
 function clean_curses()
@@ -94,25 +95,7 @@ function put_string(pos, stage_pos, str)
                str)
 end
 
-function main_coro(stat, elapsed)
-   init_curses()
-
-   stat:next_frame()
-
-   local width, height = nc.getmaxx(nc.stdscr), nc.getmaxy(nc.stdscr)
-   nc.mvaddstr(0, 1, string.format("size: % 3d, % 3d     press ESC to quit",
-                                   width, height))
-
-   local stage_size = {width = width, height = height - 1}
-   local stage_pos = {x = 0, y = 1}
-
-   local head_pos = random_position(stage_size)
-   local direction = math.random(0, 3)
-   local length = 4
-   local pos_in_trajectory = 1
-   local trajectory = {}
-   local food_pos = random_position(stage_size)
-
+function show_title_screen(stat, stage_size, stage_pos)
    local finished = false
 
    put_string({y = math.floor(stage_size.height / 2) - 1,
@@ -135,6 +118,31 @@ function main_coro(stat, elapsed)
               stage_pos,
               "                    ")
 
+   return finished
+end
+
+function main_coro(stat, elapsed)
+   init_curses()
+
+   stat:next_frame()
+
+   local width, height = nc.getmaxx(nc.stdscr), nc.getmaxy(nc.stdscr)
+   nc.mvaddstr(0, 1, string.format("size: % 3d, % 3d     press ESC to quit",
+                                   width, height))
+
+   local stage_size = {width = width, height = height - 1}
+   local stage_pos = {x = 0, y = 1}
+
+   local head_pos = random_position(stage_size)
+   local direction = math.random(0, 3)
+   local length = 4
+   local pos_in_trajectory = 1
+   local trajectory = {}
+   local food_pos = random_position(stage_size)
+
+   local finished = false
+
+   finished = show_title_screen(stat, stage_size, stage_pos)
    put_string(food_pos, stage_pos, "#")
 
    while not finished do
