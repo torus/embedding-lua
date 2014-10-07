@@ -107,12 +107,7 @@ function show_title_screen(stat, win, stage_size)
                               math.floor(stage_size.width / 2) - 15)
    nc.box(childwin, 0, 0)
 
-   -- put_string({y = math.floor(stage_size.height / 2) - 1,
-   --             x = math.floor(stage_size.width / 2) - 10},
-   --            stage_pos,
-   --            "Press ENTER to start")
    nc.mvwaddstr(childwin, 1, 4, "Press ENTER to start");
-   -- nc.wrefresh(childwin)
 
    while not finished do
       stat:update_key()
@@ -124,10 +119,6 @@ function show_title_screen(stat, win, stage_size)
       stat:next_frame()
    end
 
-   -- put_string({y = math.floor(stage_size.height / 2) - 1,
-   --             x = math.floor(stage_size.width / 2) - 10},
-   --            stage_pos,
-   --            "                    ")
    nc.delwin(childwin)
    nc.werase(win)
 
@@ -175,7 +166,6 @@ function main_coro(stat, elapsed)
          put_string(stage_win, food_pos, "#")
       end
 
-      -- put_string(stage_win, head_pos, "@")
       nc.mvaddstr(head_pos.y + stage_pos.y,
                   head_pos.x + stage_pos.x, "@")
 
@@ -183,8 +173,6 @@ function main_coro(stat, elapsed)
          if v.x == head_pos.x and v.y == head_pos.y then
             finished = true
             put_string(stage_win, head_pos, "*")
-            -- nc.mvaddstr(head_pos.y + stage_pos.y,
-            --             head_pos.x + stage_pos.x, "*")
             nc.wrefresh(stage_win)
             sleep(1)
             break
