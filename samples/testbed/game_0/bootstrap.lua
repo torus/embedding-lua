@@ -20,7 +20,7 @@ function GameState:update_key()
 end
 
 function init_curses()
-   nc.initscr()
+   local win = nc.initscr()
 
    nc.keypad(nc.stdscr, true)
    nc.nodelay(nc.stdscr, true)
@@ -28,6 +28,8 @@ function init_curses()
    nc.cbreak()
    nc.curs_set(0)
    nc.set_escdelay(0)
+
+   return win
 end
 
 function clean_curses()
@@ -89,19 +91,28 @@ function random_position(stage_size)
            y = math.random(stage_size.height) - 1}
 end
 
-function put_string(pos, stage_pos, str)
-   nc.mvaddstr(pos.y + stage_pos.y,
-               pos.x + stage_pos.x,
-               str)
+function put_string(win, pos, str)
+   nc.mvwaddstr(win,
+                pos.y,
+                pos.x,
+                str)
 end
 
-function show_title_screen(stat, stage_size, stage_pos)
+function show_title_screen(stat, win, stage_size)
    local finished = false
 
-   put_string({y = math.floor(stage_size.height / 2) - 1,
-               x = math.floor(stage_size.width / 2) - 10},
-              stage_pos,
-              "Press ENTER to start")
+   nc.touchwin(win)
+   local childwin = nc.subwin(win, 3, 30,
+                              math.floor(stage_size.height / 2) - 1,
+                              math.floor(stage_size.width / 2) - 15)
+   nc.box(childwin, 0, 0)
+
+   -- put_string({y = math.floor(stage_size.height / 2) - 1,
+   --             x = math.floor(stage_size.width / 2) - 10},
+   --            stage_pos,
+   --            "Press ENTER to start")
+   nc.mvwaddstr(childwin, 1, 4, "Press ENTER to start");
+   -- nc.wrefresh(childwin)
 
    while not finished do
       stat:update_key()
@@ -113,16 +124,18 @@ function show_title_screen(stat, stage_size, stage_pos)
       stat:next_frame()
    end
 
-   put_string({y = math.floor(stage_size.height / 2) - 1,
-               x = math.floor(stage_size.width / 2) - 10},
-              stage_pos,
-              "                    ")
+   -- put_string({y = math.floor(stage_size.height / 2) - 1,
+   --             x = math.floor(stage_size.width / 2) - 10},
+   --            stage_pos,
+   --            "                    ")
+   nc.delwin(childwin)
+   nc.werase(win)
 
    return finished
 end
 
 function main_coro(stat, elapsed)
-   init_curses()
+   local root_win = init_curses()
 
    stat:next_frame()
 
@@ -141,9 +154,11 @@ function main_coro(stat, elapsed)
    local food_pos = random_position(stage_size)
 
    local finished = false
+   nc.touchwin(root_win)
+   local stage_win = nc.subwin(root_win, height - 1, width, 1, 0)
 
-   finished = show_title_screen(stat, stage_size, stage_pos)
-   put_string(food_pos, stage_pos, "#")
+   finished = show_title_screen(stat, stage_win, stage_size)
+   put_string(stage_win, food_pos, "#")
 
    while not finished do
       stat:update_key()
@@ -157,18 +172,20 @@ function main_coro(stat, elapsed)
          food_pos = random_position(stage_size)
          length = length + 2
 
-         put_string(food_pos, stage_pos, "#")
+         put_string(stage_win, food_pos, "#")
       end
 
+      -- put_string(stage_win, head_pos, "@")
       nc.mvaddstr(head_pos.y + stage_pos.y,
                   head_pos.x + stage_pos.x, "@")
 
       for i, v in ipairs(trajectory) do
          if v.x == head_pos.x and v.y == head_pos.y then
             finished = true
-            nc.mvaddstr(head_pos.y + stage_pos.y,
-                        head_pos.x + stage_pos.x, "*")
-            nc.refresh()
+            put_string(stage_win, head_pos, "*")
+            -- nc.mvaddstr(head_pos.y + stage_pos.y,
+            --             head_pos.x + stage_pos.x, "*")
+            nc.wrefresh(stage_win)
             sleep(1)
             break
          end
@@ -181,6 +198,7 @@ function main_coro(stat, elapsed)
       trajectory[pos_in_trajectory] = {x = head_pos.x, y = head_pos.y}
       pos_in_trajectory = (pos_in_trajectory + 1) % length
 
+      nc.wrefresh(stage_win)
       nc.refresh()
       stat:next_frame()
    end
