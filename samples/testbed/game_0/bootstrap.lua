@@ -1,5 +1,19 @@
 -- Game 0 - Snake game
 
+local logfile = io.open("snake.log", "a")
+local function log(...)
+   local num = select("#", ...)
+   local args = {}
+   for i = 1, num do
+      table.insert(args, tostring(select(i, ...)))
+   end
+
+   logfile:write(os.date("%Y-%m-%d %H:%M:%S"), ": ", table.concat(args), "\n")
+   logfile:flush()
+end
+
+-------------
+
 GameState = {}
 
 function GameState:update_key()
@@ -93,23 +107,22 @@ function random_position(stage_size)
 end
 
 function put_string(win, pos, str)
-   nc.mvwaddstr(win,
-                pos.y,
-                pos.x,
-                str)
+   nc.mvwaddstr(win, pos.y, pos.x, str)
 end
 
 function show_title_screen(stat, win, stage_size)
    local finished = false
 
+   nc.werase(win)
    nc.touchwin(win)
+   nc.wrefresh(win)
    local childwin = nc.subwin(win, 3, 30,
                               math.floor(stage_size.height / 2) - 1,
                               math.floor(stage_size.width / 2) - 15)
    nc.box(childwin, 0, 0)
 
    nc.mvwaddstr(childwin, 1, 4, "Press ENTER to start");
-
+   nc.wrefresh(childwin)
    while not finished do
       stat:update_key()
       if stat.key_state_down[27] then -- ESCAPE
@@ -137,57 +150,69 @@ function main_coro(stat, elapsed)
 
    local stage_size = {width = width, height = height - 1}
 
-   local head_pos = random_position(stage_size)
-   local direction = math.random(0, 3)
-   local length = 4
-   local pos_in_trajectory = 1
-   local trajectory = {}
-   local food_pos = random_position(stage_size)
+   local head_pos
+   local direction
+   local length
+   local pos_in_trajectory
+   local trajectory
+   local food_pos
 
    local finished = false
+   local alive
 
    local stage_win = nc.subwin(root_win, height - 1, width, 1, 0)
 
-   finished = show_title_screen(stat, stage_win, stage_size)
-   put_string(stage_win, food_pos, "#")
-
    while not finished do
-      stat:update_key()
+      log("start: ", stat, " ", stage_win)
+      finished = show_title_screen(stat, stage_win, stage_size)
 
-      finished, direction = stat:check_key_and_game_finished(direction)
-      if finished then break end
+      alive = true
+      head_pos = random_position(stage_size)
+      direction = math.random(0, 3)
+      length = 4
+      pos_in_trajectory = 1
+      trajectory = {}
+      food_pos = random_position(stage_size)
+      put_string(stage_win, food_pos, "#")
 
-      head_pos = next_position(head_pos, direction, stage_size)
+      while not finished and alive do
+         stat:update_key()
 
-      if head_pos.x == food_pos.x and head_pos.y == food_pos.y then
-         food_pos = random_position(stage_size)
-         length = length + 2
+         finished, direction = stat:check_key_and_game_finished(direction)
+         if finished then break end
 
-         put_string(stage_win, food_pos, "#")
-      end
+         head_pos = next_position(head_pos, direction, stage_size)
 
-      put_string(stage_win, head_pos, "@")
+         if head_pos.x == food_pos.x and head_pos.y == food_pos.y then
+            food_pos = random_position(stage_size)
+            length = length + 2
 
-      for i, v in ipairs(trajectory) do
-         if v.x == head_pos.x and v.y == head_pos.y then
-            finished = true
-            put_string(stage_win, head_pos, "*")
-            nc.wrefresh(stage_win)
-            sleep(1)
-            break
+            put_string(stage_win, food_pos, "#")
          end
-      end
 
-      local tail = trajectory[pos_in_trajectory]
-      if tail then
-         put_string(stage_win, tail, " ")
-      end
-      trajectory[pos_in_trajectory] = {x = head_pos.x, y = head_pos.y}
-      pos_in_trajectory = (pos_in_trajectory + 1) % length
+         put_string(stage_win, head_pos, "@")
 
-      nc.wrefresh(stage_win)
-      nc.refresh()
-      stat:next_frame()
+         for i, v in ipairs(trajectory) do
+            if v.x == head_pos.x and v.y == head_pos.y then
+               alive = false
+               put_string(stage_win, head_pos, "*")
+               nc.wrefresh(stage_win)
+               sleep(1)
+               break
+            end
+         end
+
+         local tail = trajectory[pos_in_trajectory]
+         if tail then
+            put_string(stage_win, tail, " ")
+         end
+         trajectory[pos_in_trajectory] = {x = head_pos.x, y = head_pos.y}
+         pos_in_trajectory = (pos_in_trajectory + 1) % length
+
+         nc.wrefresh(stage_win)
+         nc.refresh()
+         stat:next_frame()
+      end
    end
 
    clean_curses()
