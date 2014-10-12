@@ -166,8 +166,7 @@ function main_coro(stat, elapsed)
          put_string(stage_win, food_pos, "#")
       end
 
-      nc.mvaddstr(head_pos.y + stage_pos.y,
-                  head_pos.x + stage_pos.x, "@")
+      put_string(stage_win, head_pos, "@")
 
       for i, v in ipairs(trajectory) do
          if v.x == head_pos.x and v.y == head_pos.y then
@@ -181,7 +180,7 @@ function main_coro(stat, elapsed)
 
       local tail = trajectory[pos_in_trajectory]
       if tail then
-         nc.mvaddstr(tail.y + stage_pos.y, tail.x + stage_pos.x, " ")
+         put_string(stage_win, tail, " ")
       end
       trajectory[pos_in_trajectory] = {x = head_pos.x, y = head_pos.y}
       pos_in_trajectory = (pos_in_trajectory + 1) % length
