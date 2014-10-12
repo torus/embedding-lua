@@ -28,6 +28,7 @@ function init_curses()
    nc.cbreak()
    nc.curs_set(0)
    nc.set_escdelay(0)
+   nc.touchwin(win)
 
    return win
 end
@@ -135,7 +136,6 @@ function main_coro(stat, elapsed)
                                    width, height))
 
    local stage_size = {width = width, height = height - 1}
-   local stage_pos = {x = 0, y = 1}
 
    local head_pos = random_position(stage_size)
    local direction = math.random(0, 3)
@@ -145,7 +145,7 @@ function main_coro(stat, elapsed)
    local food_pos = random_position(stage_size)
 
    local finished = false
-   nc.touchwin(root_win)
+
    local stage_win = nc.subwin(root_win, height - 1, width, 1, 0)
 
    finished = show_title_screen(stat, stage_win, stage_size)
