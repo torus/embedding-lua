@@ -72,19 +72,20 @@ function clean_curses()
    nc.endwin()
 end
 
-function check_key_and_game_finished(stat, gstat)
+function InGameState:check_key_and_game_finished()
+   local stat = self.mod_state
    local finished = false
 
    if stat.key_state_down[27] then
       finished = true
    elseif stat.key_state_down[nc.KEY_RIGHT] then
-      gstat.direction = 0
+      self.direction = 0
    elseif stat.key_state_down[nc.KEY_DOWN] then
-      gstat.direction = 1
+      self.direction = 1
    elseif stat.key_state_down[nc.KEY_LEFT] then
-      gstat.direction = 2
+      self.direction = 2
    elseif stat.key_state_down[nc.KEY_UP] then
-      gstat.direction = 3
+      self.direction = 3
    end
 
    return finished
@@ -195,47 +196,51 @@ function show_result(stat, foods)
    return finished
 end
 
-function check_got_food(stat, gstat)
-   if gstat.head_pos.x == gstat.food_pos.x and gstat.head_pos.y == gstat.food_pos.y then
-      gstat.food_pos = random_position(stat.stage_size, 5)
-      gstat.length = gstat.length * 1.3
-      gstat.foods = gstat.foods + 1
+function InGameState:check_got_food()
+   local stat = self.mod_state
+   if self.head_pos.x == self.food_pos.x and self.head_pos.y == self.food_pos.y then
+      self.food_pos = random_position(stat.stage_size, 5)
+      self.length = self.length * 1.3
+      self.foods = self.foods + 1
 
-      put_string(stat.stage_win, gstat.food_pos, "#")
+      put_string(stat.stage_win, self.food_pos, "#")
    end
 end
 
-function check_died(stat, gstat)
+function InGameState:check_died()
+   local stat = self.mod_state
    local stage_win, stage_size = stat.stage_win, stat.stage_size
-   for i, v in ipairs(gstat.trajectory) do
-      if i ~= gstat.pos_in_trajectory and v.x == gstat.head_pos.x and v.y == gstat.head_pos.y then
-         gstat.alive = false
+   for i, v in ipairs(self.trajectory) do
+      if i ~= self.pos_in_trajectory and v.x == self.head_pos.x and v.y == self.head_pos.y then
+         self.alive = false
          break
       end
    end
 end
 
-function move_snake(stat, gstat)
-   gstat.trajectory[gstat.pos_in_trajectory] = {x = gstat.head_pos.x, y = gstat.head_pos.y}
-   gstat.pos_in_trajectory = gstat.pos_in_trajectory % math.floor(gstat.length) + 1
-   gstat.head_pos = next_position(gstat.head_pos, gstat.direction, stat.stage_size)
+function InGameState:move_snake()
+   local stat = self.mod_state
+   self.trajectory[self.pos_in_trajectory] = {x = self.head_pos.x, y = self.head_pos.y}
+   self.pos_in_trajectory = self.pos_in_trajectory % math.floor(self.length) + 1
+   self.head_pos = next_position(self.head_pos, self.direction, stat.stage_size)
 end
 
-function draw_snake(stat, gstat)
+function InGameState:draw_snake()
+   local stat = self.mod_state
    local stage_win, stage_size = stat.stage_win, stat.stage_size
 
-   local tail = gstat.trajectory[gstat.pos_in_trajectory]
+   local tail = self.trajectory[self.pos_in_trajectory]
    if tail then
       put_string(stage_win, tail, " ")
    end
 
-   if gstat.alive then
-      put_string(stage_win, gstat.head_pos, "@")
+   if self.alive then
+      put_string(stage_win, self.head_pos, "@")
    else
-      for i, v in ipairs(gstat.trajectory) do
+      for i, v in ipairs(self.trajectory) do
          put_string(stage_win, v, "o")
       end
-      put_string(stage_win, gstat.head_pos, "*")
+      put_string(stage_win, self.head_pos, "*")
    end
 end
 
@@ -248,14 +253,12 @@ function InGameState:main()
    while not finished and self.alive do
       stat:update_key()
 
-      finished = check_key_and_game_finished(stat, self)
+      finished = self:check_key_and_game_finished()
 
-      move_snake(stat, self)
-
-      check_got_food(stat, self)
-      check_died(stat, self)
-
-      draw_snake(stat, self)
+      self:move_snake()
+      self:check_got_food()
+      self:check_died()
+      self:draw_snake()
 
       nc.wrefresh(stat.stage_win)
       stat:next_frame()
