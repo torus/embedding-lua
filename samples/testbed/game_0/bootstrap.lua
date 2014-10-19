@@ -228,11 +228,10 @@ function main_coro(stat, elapsed)
                                    width, height))
 
    local stage_size = {width = width, height = height - 1}
+   local stage_win = nc.subwin(root_win, height - 1, width, 1, 0)
 
    local finished = false
    local game_state
-
-   local stage_win = nc.subwin(root_win, height - 1, width, 1, 0)
 
    while not finished do
       log("start: ", stat, " ", stage_win)
