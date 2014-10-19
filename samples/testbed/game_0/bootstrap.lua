@@ -229,24 +229,14 @@ function main_coro(stat, elapsed)
 
    local stage_size = {width = width, height = height - 1}
 
-   -- local head_pos
-   -- local direction
-   -- local length
-   -- local pos_in_trajectory
-   -- local trajectory
-   -- local food_pos
-
    local finished = false
-   -- local alive
-   local game_stat
+   local game_state
 
    local stage_win = nc.subwin(root_win, height - 1, width, 1, 0)
 
    while not finished do
       log("start: ", stat, " ", stage_win)
-      finished = show_title_screen(stat, stage_win, stage_size)
-
-      gstat = {
+      game_state = {
          alive = true,
          head_pos = random_position(stage_size, 10),
          direction = math.random(0, 3),
@@ -257,13 +247,9 @@ function main_coro(stat, elapsed)
          foods = 0,
       }
 
-      if not finished then
-         finished = ingame_main(stat, gstat, stage_win, stage_size)
-      end
-
-      if not finished then
-         finished = show_result(stat, stage_win, stage_size, gstat.foods)
-      end
+      finished = show_title_screen(stat, stage_win, stage_size)
+         or ingame_main(stat, game_state, stage_win, stage_size)
+         or show_result(stat, stage_win, stage_size, game_state.foods)
    end
 
    clean_curses()
