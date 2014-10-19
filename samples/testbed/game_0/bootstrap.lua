@@ -14,9 +14,9 @@ end
 
 -------------
 
-GameState = {}
+ModState = {}
 
-function GameState:update_key()
+function ModState:update_key()
    self.key_state_up = {}
    self.key_state_down = {}
 
@@ -69,7 +69,7 @@ function check_key_and_game_finished(stat, gstat)
    return finished
 end
 
-function GameState:next_frame()
+function ModState:next_frame()
    local prev_time = self.frame_start_time
    local cur_time = elapsed_time()
 
@@ -284,7 +284,7 @@ function init()
       coro = coroutine.create(main_coro),
       key_state = {},
    }
-   setmetatable(o, {__index = GameState})
+   setmetatable(o, {__index = ModState})
    return o
 end
 
