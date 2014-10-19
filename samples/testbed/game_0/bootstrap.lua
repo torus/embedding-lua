@@ -187,7 +187,7 @@ end
 function check_died(stat, gstat)
    local stage_win, stage_size = stat.stage_win, stat.stage_size
    for i, v in ipairs(gstat.trajectory) do
-      if v.x == gstat.head_pos.x and v.y == gstat.head_pos.y then
+      if i ~= gstat.pos_in_trajectory and v.x == gstat.head_pos.x and v.y == gstat.head_pos.y then
          gstat.alive = false
          break
       end
@@ -195,6 +195,8 @@ function check_died(stat, gstat)
 end
 
 function move_snake(stat, gstat)
+   gstat.trajectory[gstat.pos_in_trajectory] = {x = gstat.head_pos.x, y = gstat.head_pos.y}
+   gstat.pos_in_trajectory = gstat.pos_in_trajectory % math.floor(gstat.length) + 1
    gstat.head_pos = next_position(gstat.head_pos, gstat.direction, stat.stage_size)
 end
 
@@ -234,9 +236,6 @@ function ingame_main(stat, gstat)
       check_died(stat, gstat)
 
       draw_snake(stat, gstat)
-
-      gstat.trajectory[gstat.pos_in_trajectory] = {x = gstat.head_pos.x, y = gstat.head_pos.y}
-      gstat.pos_in_trajectory = gstat.pos_in_trajectory % math.floor(gstat.length) + 1
 
       nc.wrefresh(stage_win)
       nc.refresh()
