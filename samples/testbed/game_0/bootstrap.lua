@@ -220,11 +220,6 @@ function ingame_main(stat, gstat)
       gstat.head_pos = next_position(gstat.head_pos, gstat.direction, stage_size)
 
       draw_snake(stat, gstat)
-      -- put_string(stage_win, gstat.head_pos, "@")
-      -- local tail = gstat.trajectory[gstat.pos_in_trajectory]
-      -- if tail then
-      --    put_string(stage_win, tail, " ")
-      -- end
 
       check_got_food(stat, gstat)
       check_died(stat, gstat)
