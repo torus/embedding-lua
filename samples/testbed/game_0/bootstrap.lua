@@ -51,22 +51,22 @@ function clean_curses()
    nc.endwin()
 end
 
-function GameState:check_key_and_game_finished(direction)
+function check_key_and_game_finished(stat, gstat)
    local finished = false
 
-   if self.key_state_down[27] then
+   if stat.key_state_down[27] then
       finished = true
-   elseif self.key_state_down[nc.KEY_RIGHT] then
-      direction = 0
-   elseif self.key_state_down[nc.KEY_DOWN] then
-      direction = 1
-   elseif self.key_state_down[nc.KEY_LEFT] then
-      direction = 2
-   elseif self.key_state_down[nc.KEY_UP] then
-      direction = 3
+   elseif stat.key_state_down[nc.KEY_RIGHT] then
+      gstat.direction = 0
+   elseif stat.key_state_down[nc.KEY_DOWN] then
+      gstat.direction = 1
+   elseif stat.key_state_down[nc.KEY_LEFT] then
+      gstat.direction = 2
+   elseif stat.key_state_down[nc.KEY_UP] then
+      gstat.direction = 3
    end
 
-   return finished, direction
+   return finished
 end
 
 function GameState:next_frame()
@@ -227,8 +227,7 @@ function ingame_main(stat, gstat)
    while not finished and gstat.alive do
       stat:update_key()
 
-      finished, gstat.direction = stat:check_key_and_game_finished(gstat.direction)
-      if finished then break end
+      finished = check_key_and_game_finished(stat, gstat)
 
       move_snake(stat, gstat)
 
@@ -238,7 +237,6 @@ function ingame_main(stat, gstat)
       draw_snake(stat, gstat)
 
       nc.wrefresh(stage_win)
-      nc.refresh()
       stat:next_frame()
    end
 
