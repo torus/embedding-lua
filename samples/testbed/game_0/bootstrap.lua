@@ -184,6 +184,18 @@ function check_got_food(stat, gstat)
    end
 end
 
+function check_died(stat, gstat)
+   local stage_win, stage_size = stat.stage_win, stat.stage_size
+   for i, v in ipairs(gstat.trajectory) do
+      if v.x == gstat.head_pos.x and v.y == gstat.head_pos.y then
+         gstat.alive = false
+         put_string(stage_win, gstat.head_pos, "*")
+         nc.wrefresh(stage_win)
+         break
+      end
+   end
+end
+
 function ingame_main(stat, gstat)
    local finished = false
    local stage_win, stage_size = stat.stage_win, stat.stage_size
@@ -199,24 +211,18 @@ function ingame_main(stat, gstat)
       gstat.head_pos = next_position(gstat.head_pos, gstat.direction, stage_size)
 
       check_got_food(stat, gstat)
-      -- if gstat.head_pos.x == gstat.food_pos.x and gstat.head_pos.y == gstat.food_pos.y then
-      --    gstat.food_pos = random_position(stage_size, 5)
-      --    gstat.length = gstat.length * 1.3
-      --    gstat.foods = gstat.foods + 1
-
-      --    put_string(stage_win, gstat.food_pos, "#")
-      -- end
 
       put_string(stage_win, gstat.head_pos, "@")
 
-      for i, v in ipairs(gstat.trajectory) do
-         if v.x == gstat.head_pos.x and v.y == gstat.head_pos.y then
-            gstat.alive = false
-            put_string(stage_win, gstat.head_pos, "*")
-            nc.wrefresh(stage_win)
-            break
-         end
-      end
+      check_died(stat, gstat)
+      -- for i, v in ipairs(gstat.trajectory) do
+      --    if v.x == gstat.head_pos.x and v.y == gstat.head_pos.y then
+      --       gstat.alive = false
+      --       put_string(stage_win, gstat.head_pos, "*")
+      --       nc.wrefresh(stage_win)
+      --       break
+      --    end
+      -- end
 
       local tail = gstat.trajectory[gstat.pos_in_trajectory]
       if tail then
