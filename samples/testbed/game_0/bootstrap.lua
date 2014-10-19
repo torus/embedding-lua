@@ -189,8 +189,6 @@ function check_died(stat, gstat)
    for i, v in ipairs(gstat.trajectory) do
       if v.x == gstat.head_pos.x and v.y == gstat.head_pos.y then
          gstat.alive = false
-         -- put_string(stage_win, gstat.head_pos, "*")
-         -- nc.wrefresh(stage_win)
          break
       end
    end
