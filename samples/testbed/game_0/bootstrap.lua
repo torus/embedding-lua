@@ -101,9 +101,10 @@ function next_position(pos, dir, stage_size)
    return {x = x, y = y}
 end
 
-function random_position(stage_size)
-   return {x = math.random(stage_size.width) - 1,
-           y = math.random(stage_size.height) - 1}
+function random_position(stage_size, offset)
+   offset = offset or 0
+   return {x = offset + math.random(stage_size.width - offset) - 1,
+           y = offset + math.random(stage_size.height - offset) - 1}
 end
 
 function put_string(win, pos, str)
@@ -116,12 +117,43 @@ function show_title_screen(stat, win, stage_size)
    nc.werase(win)
    nc.touchwin(win)
    nc.wrefresh(win)
-   local childwin = nc.subwin(win, 3, 30,
+   local childwin = nc.subwin(win, 4, 30,
                               math.floor(stage_size.height / 2) - 1,
                               math.floor(stage_size.width / 2) - 15)
    nc.box(childwin, 0, 0)
 
-   nc.mvwaddstr(childwin, 1, 4, "Press ENTER to start");
+   nc.mvwaddstr(childwin, 1, 4, "NCURSES SNAKE GAME");
+   nc.mvwaddstr(childwin, 2, 4, "Press ENTER to start");
+   nc.wrefresh(childwin)
+   while not finished do
+      stat:update_key()
+      if stat.key_state_down[27] then -- ESCAPE
+         finished = true
+      elseif stat.key_state_down[10] then -- ENTER
+         break
+      end
+      stat:next_frame()
+   end
+
+   nc.delwin(childwin)
+   nc.werase(win)
+
+   return finished
+end
+
+function show_result(stat, win, stage_size, foods)
+   local finished = false
+
+   nc.touchwin(win)
+   nc.wrefresh(win)
+   local childwin = nc.subwin(win, 5, 30,
+                              math.floor(stage_size.height / 2) - 1,
+                              math.floor(stage_size.width / 2) - 15)
+   nc.box(childwin, 0, 0)
+
+   nc.mvwaddstr(childwin, 1, 4, "GAME OVER");
+   nc.mvwaddstr(childwin, 2, 4, string.format("Foods: %d", foods));
+   nc.mvwaddstr(childwin, 3, 4, "Press ENTER to Continue");
    nc.wrefresh(childwin)
    while not finished do
       stat:update_key()
@@ -150,15 +182,16 @@ function main_coro(stat, elapsed)
 
    local stage_size = {width = width, height = height - 1}
 
-   local head_pos
-   local direction
-   local length
-   local pos_in_trajectory
-   local trajectory
-   local food_pos
+   -- local head_pos
+   -- local direction
+   -- local length
+   -- local pos_in_trajectory
+   -- local trajectory
+   -- local food_pos
 
    local finished = false
-   local alive
+   -- local alive
+   local game_stat
 
    local stage_win = nc.subwin(root_win, height - 1, width, 1, 0)
 
@@ -166,52 +199,59 @@ function main_coro(stat, elapsed)
       log("start: ", stat, " ", stage_win)
       finished = show_title_screen(stat, stage_win, stage_size)
 
-      alive = true
-      head_pos = random_position(stage_size)
-      direction = math.random(0, 3)
-      length = 4
-      pos_in_trajectory = 1
-      trajectory = {}
-      food_pos = random_position(stage_size)
-      put_string(stage_win, food_pos, "#")
+      gstat = {
+         alive = true,
+         head_pos = random_position(stage_size, 10),
+         direction = math.random(0, 3),
+         length = 10,
+         pos_in_trajectory = 1,
+         trajectory = {},
+         food_pos = random_position(stage_size, 5),
+         foods = 0,
+      }
 
-      while not finished and alive do
+      put_string(stage_win, gstat.food_pos, "#")
+
+      while not finished and gstat.alive do
          stat:update_key()
 
-         finished, direction = stat:check_key_and_game_finished(direction)
+         finished, gstat.direction = stat:check_key_and_game_finished(gstat.direction)
          if finished then break end
 
-         head_pos = next_position(head_pos, direction, stage_size)
+         gstat.head_pos = next_position(gstat.head_pos, gstat.direction, stage_size)
 
-         if head_pos.x == food_pos.x and head_pos.y == food_pos.y then
-            food_pos = random_position(stage_size)
-            length = length + 2
+         if gstat.head_pos.x == gstat.food_pos.x and gstat.head_pos.y == gstat.food_pos.y then
+            gstat.food_pos = random_position(stage_size, 5)
+            gstat.length = gstat.length * 1.3
+            gstat.foods = gstat.foods + 1
 
-            put_string(stage_win, food_pos, "#")
+            put_string(stage_win, gstat.food_pos, "#")
          end
 
-         put_string(stage_win, head_pos, "@")
+         put_string(stage_win, gstat.head_pos, "@")
 
-         for i, v in ipairs(trajectory) do
-            if v.x == head_pos.x and v.y == head_pos.y then
-               alive = false
-               put_string(stage_win, head_pos, "*")
+         for i, v in ipairs(gstat.trajectory) do
+            if v.x == gstat.head_pos.x and v.y == gstat.head_pos.y then
+               gstat.alive = false
+               put_string(stage_win, gstat.head_pos, "*")
                nc.wrefresh(stage_win)
-               sleep(1)
                break
             end
          end
 
-         local tail = trajectory[pos_in_trajectory]
+         local tail = gstat.trajectory[gstat.pos_in_trajectory]
          if tail then
             put_string(stage_win, tail, " ")
          end
-         trajectory[pos_in_trajectory] = {x = head_pos.x, y = head_pos.y}
-         pos_in_trajectory = (pos_in_trajectory + 1) % length
+         gstat.trajectory[gstat.pos_in_trajectory] = {x = gstat.head_pos.x, y = gstat.head_pos.y}
+         gstat.pos_in_trajectory = (gstat.pos_in_trajectory + 1) % math.floor(gstat.length)
 
          nc.wrefresh(stage_win)
          nc.refresh()
          stat:next_frame()
+      end
+      if not finished then
+         finished = show_result(stat, stage_win, stage_size, gstat.foods)
       end
    end
 
