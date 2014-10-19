@@ -210,24 +210,16 @@ function ingame_main(stat, gstat)
 
       gstat.head_pos = next_position(gstat.head_pos, gstat.direction, stage_size)
 
-      check_got_food(stat, gstat)
-
       put_string(stage_win, gstat.head_pos, "@")
-
-      check_died(stat, gstat)
-      -- for i, v in ipairs(gstat.trajectory) do
-      --    if v.x == gstat.head_pos.x and v.y == gstat.head_pos.y then
-      --       gstat.alive = false
-      --       put_string(stage_win, gstat.head_pos, "*")
-      --       nc.wrefresh(stage_win)
-      --       break
-      --    end
-      -- end
-
       local tail = gstat.trajectory[gstat.pos_in_trajectory]
       if tail then
          put_string(stage_win, tail, " ")
       end
+
+      check_got_food(stat, gstat)
+      check_died(stat, gstat)
+
+
       gstat.trajectory[gstat.pos_in_trajectory] = {x = gstat.head_pos.x, y = gstat.head_pos.y}
       gstat.pos_in_trajectory = (gstat.pos_in_trajectory + 1) % math.floor(gstat.length)
 
