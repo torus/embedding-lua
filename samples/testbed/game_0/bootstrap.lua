@@ -189,8 +189,8 @@ function check_died(stat, gstat)
    for i, v in ipairs(gstat.trajectory) do
       if v.x == gstat.head_pos.x and v.y == gstat.head_pos.y then
          gstat.alive = false
-         put_string(stage_win, gstat.head_pos, "*")
-         nc.wrefresh(stage_win)
+         -- put_string(stage_win, gstat.head_pos, "*")
+         -- nc.wrefresh(stage_win)
          break
       end
    end
@@ -202,10 +202,19 @@ end
 
 function draw_snake(stat, gstat)
    local stage_win, stage_size = stat.stage_win, stat.stage_size
-   put_string(stage_win, gstat.head_pos, "@")
+
    local tail = gstat.trajectory[gstat.pos_in_trajectory]
    if tail then
       put_string(stage_win, tail, " ")
+   end
+
+   if gstat.alive then
+      put_string(stage_win, gstat.head_pos, "@")
+   else
+      for i, v in ipairs(gstat.trajectory) do
+         put_string(stage_win, v, "o")
+      end
+      put_string(stage_win, gstat.head_pos, "*")
    end
 end
 
@@ -222,13 +231,14 @@ function ingame_main(stat, gstat)
       if finished then break end
 
       move_snake(stat, gstat)
-      draw_snake(stat, gstat)
 
       check_got_food(stat, gstat)
       check_died(stat, gstat)
 
+      draw_snake(stat, gstat)
+
       gstat.trajectory[gstat.pos_in_trajectory] = {x = gstat.head_pos.x, y = gstat.head_pos.y}
-      gstat.pos_in_trajectory = (gstat.pos_in_trajectory + 1) % math.floor(gstat.length)
+      gstat.pos_in_trajectory = gstat.pos_in_trajectory % math.floor(gstat.length) + 1
 
       nc.wrefresh(stage_win)
       nc.refresh()
