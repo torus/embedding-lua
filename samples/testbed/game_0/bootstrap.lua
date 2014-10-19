@@ -33,6 +33,20 @@ function ModState:update_key()
    end
 end
 
+function ModState:next_frame()
+   local prev_time = self.frame_start_time
+   local cur_time = elapsed_time()
+
+   if prev_time and prev_time > 0 then
+      local dur = 0.033 - (cur_time - prev_time)
+      if dur > 0 then
+         sleep(dur)
+      end
+   end
+   self.frame_start_time = elapsed_time()
+   local stat, elapsed = coroutine.yield()
+end
+
 -------------
 
 InGameState = {}
@@ -89,20 +103,6 @@ function InGameState:check_key_and_game_finished()
    end
 
    return finished
-end
-
-function ModState:next_frame()
-   local prev_time = self.frame_start_time
-   local cur_time = elapsed_time()
-
-   if prev_time and prev_time > 0 then
-      local dur = 0.033 - (cur_time - prev_time)
-      if dur > 0 then
-         sleep(dur)
-      end
-   end
-   self.frame_start_time = elapsed_time()
-   local stat, elapsed = coroutine.yield()
 end
 
 function next_position(pos, dir, stage_size)
