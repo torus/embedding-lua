@@ -171,6 +171,53 @@ function show_result(stat, win, stage_size, foods)
    return finished
 end
 
+function ingame_main(stat, gstat, stage_win, stage_size)
+   local finished = false
+
+   put_string(stage_win, gstat.food_pos, "#")
+
+   while not finished and gstat.alive do
+      stat:update_key()
+
+      finished, gstat.direction = stat:check_key_and_game_finished(gstat.direction)
+      if finished then break end
+
+      gstat.head_pos = next_position(gstat.head_pos, gstat.direction, stage_size)
+
+      if gstat.head_pos.x == gstat.food_pos.x and gstat.head_pos.y == gstat.food_pos.y then
+         gstat.food_pos = random_position(stage_size, 5)
+         gstat.length = gstat.length * 1.3
+         gstat.foods = gstat.foods + 1
+
+         put_string(stage_win, gstat.food_pos, "#")
+      end
+
+      put_string(stage_win, gstat.head_pos, "@")
+
+      for i, v in ipairs(gstat.trajectory) do
+         if v.x == gstat.head_pos.x and v.y == gstat.head_pos.y then
+            gstat.alive = false
+            put_string(stage_win, gstat.head_pos, "*")
+            nc.wrefresh(stage_win)
+            break
+         end
+      end
+
+      local tail = gstat.trajectory[gstat.pos_in_trajectory]
+      if tail then
+         put_string(stage_win, tail, " ")
+      end
+      gstat.trajectory[gstat.pos_in_trajectory] = {x = gstat.head_pos.x, y = gstat.head_pos.y}
+      gstat.pos_in_trajectory = (gstat.pos_in_trajectory + 1) % math.floor(gstat.length)
+
+      nc.wrefresh(stage_win)
+      nc.refresh()
+      stat:next_frame()
+   end
+
+   return finished
+end
+
 function main_coro(stat, elapsed)
    local root_win = init_curses()
 
@@ -210,46 +257,49 @@ function main_coro(stat, elapsed)
          foods = 0,
       }
 
-      put_string(stage_win, gstat.food_pos, "#")
-
-      while not finished and gstat.alive do
-         stat:update_key()
-
-         finished, gstat.direction = stat:check_key_and_game_finished(gstat.direction)
-         if finished then break end
-
-         gstat.head_pos = next_position(gstat.head_pos, gstat.direction, stage_size)
-
-         if gstat.head_pos.x == gstat.food_pos.x and gstat.head_pos.y == gstat.food_pos.y then
-            gstat.food_pos = random_position(stage_size, 5)
-            gstat.length = gstat.length * 1.3
-            gstat.foods = gstat.foods + 1
-
-            put_string(stage_win, gstat.food_pos, "#")
-         end
-
-         put_string(stage_win, gstat.head_pos, "@")
-
-         for i, v in ipairs(gstat.trajectory) do
-            if v.x == gstat.head_pos.x and v.y == gstat.head_pos.y then
-               gstat.alive = false
-               put_string(stage_win, gstat.head_pos, "*")
-               nc.wrefresh(stage_win)
-               break
-            end
-         end
-
-         local tail = gstat.trajectory[gstat.pos_in_trajectory]
-         if tail then
-            put_string(stage_win, tail, " ")
-         end
-         gstat.trajectory[gstat.pos_in_trajectory] = {x = gstat.head_pos.x, y = gstat.head_pos.y}
-         gstat.pos_in_trajectory = (gstat.pos_in_trajectory + 1) % math.floor(gstat.length)
-
-         nc.wrefresh(stage_win)
-         nc.refresh()
-         stat:next_frame()
+      if not finished then
+         finished = ingame_main(stat, gstat, stage_win, stage_size)
       end
+      -- put_string(stage_win, gstat.food_pos, "#")
+
+      -- while not finished and gstat.alive do
+      --    stat:update_key()
+
+      --    finished, gstat.direction = stat:check_key_and_game_finished(gstat.direction)
+      --    if finished then break end
+
+      --    gstat.head_pos = next_position(gstat.head_pos, gstat.direction, stage_size)
+
+      --    if gstat.head_pos.x == gstat.food_pos.x and gstat.head_pos.y == gstat.food_pos.y then
+      --       gstat.food_pos = random_position(stage_size, 5)
+      --       gstat.length = gstat.length * 1.3
+      --       gstat.foods = gstat.foods + 1
+
+      --       put_string(stage_win, gstat.food_pos, "#")
+      --    end
+
+      --    put_string(stage_win, gstat.head_pos, "@")
+
+      --    for i, v in ipairs(gstat.trajectory) do
+      --       if v.x == gstat.head_pos.x and v.y == gstat.head_pos.y then
+      --          gstat.alive = false
+      --          put_string(stage_win, gstat.head_pos, "*")
+      --          nc.wrefresh(stage_win)
+      --          break
+      --       end
+      --    end
+
+      --    local tail = gstat.trajectory[gstat.pos_in_trajectory]
+      --    if tail then
+      --       put_string(stage_win, tail, " ")
+      --    end
+      --    gstat.trajectory[gstat.pos_in_trajectory] = {x = gstat.head_pos.x, y = gstat.head_pos.y}
+      --    gstat.pos_in_trajectory = (gstat.pos_in_trajectory + 1) % math.floor(gstat.length)
+
+      --    nc.wrefresh(stage_win)
+      --    nc.refresh()
+      --    stat:next_frame()
+      -- end
       if not finished then
          finished = show_result(stat, stage_win, stage_size, gstat.foods)
       end
