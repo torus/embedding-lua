@@ -111,8 +111,9 @@ function put_string(win, pos, str)
    nc.mvwaddstr(win, pos.y, pos.x, str)
 end
 
-function show_title_screen(stat, win, stage_size)
+function show_title_screen(stat)
    local finished = false
+   local win, stage_size = stat.stage_win, stat.stage_size
 
    nc.werase(win)
    nc.touchwin(win)
@@ -141,8 +142,10 @@ function show_title_screen(stat, win, stage_size)
    return finished
 end
 
-function show_result(stat, win, stage_size, foods)
+function show_result(stat, foods)
    local finished = false
+
+   local win, stage_size = stat.stage_win, stat.stage_size
 
    nc.touchwin(win)
    nc.wrefresh(win)
@@ -171,8 +174,19 @@ function show_result(stat, win, stage_size, foods)
    return finished
 end
 
-function ingame_main(stat, gstat, stage_win, stage_size)
+function check_got_food(stat, gstat)
+   if gstat.head_pos.x == gstat.food_pos.x and gstat.head_pos.y == gstat.food_pos.y then
+      gstat.food_pos = random_position(stat.stage_size, 5)
+      gstat.length = gstat.length * 1.3
+      gstat.foods = gstat.foods + 1
+
+      put_string(stat.stage_win, gstat.food_pos, "#")
+   end
+end
+
+function ingame_main(stat, gstat)
    local finished = false
+   local stage_win, stage_size = stat.stage_win, stat.stage_size
 
    put_string(stage_win, gstat.food_pos, "#")
 
@@ -184,13 +198,14 @@ function ingame_main(stat, gstat, stage_win, stage_size)
 
       gstat.head_pos = next_position(gstat.head_pos, gstat.direction, stage_size)
 
-      if gstat.head_pos.x == gstat.food_pos.x and gstat.head_pos.y == gstat.food_pos.y then
-         gstat.food_pos = random_position(stage_size, 5)
-         gstat.length = gstat.length * 1.3
-         gstat.foods = gstat.foods + 1
+      check_got_food(stat, gstat)
+      -- if gstat.head_pos.x == gstat.food_pos.x and gstat.head_pos.y == gstat.food_pos.y then
+      --    gstat.food_pos = random_position(stage_size, 5)
+      --    gstat.length = gstat.length * 1.3
+      --    gstat.foods = gstat.foods + 1
 
-         put_string(stage_win, gstat.food_pos, "#")
-      end
+      --    put_string(stage_win, gstat.food_pos, "#")
+      -- end
 
       put_string(stage_win, gstat.head_pos, "@")
 
@@ -227,28 +242,28 @@ function main_coro(stat, elapsed)
    nc.mvaddstr(0, 1, string.format("size: % 3d, % 3d     press ESC to quit",
                                    width, height))
 
-   local stage_size = {width = width, height = height - 1}
-   local stage_win = nc.subwin(root_win, height - 1, width, 1, 0)
+   stat.stage_size = {width = width, height = height - 1}
+   stat.stage_win = nc.subwin(root_win, height - 1, width, 1, 0)
 
    local finished = false
    local game_state
 
    while not finished do
-      log("start: ", stat, " ", stage_win)
+      log("start: ", stat, " ", stat.stage_win)
       game_state = {
          alive = true,
-         head_pos = random_position(stage_size, 10),
+         head_pos = random_position(stat.stage_size, 10),
          direction = math.random(0, 3),
          length = 10,
          pos_in_trajectory = 1,
          trajectory = {},
-         food_pos = random_position(stage_size, 5),
+         food_pos = random_position(stat.stage_size, 5),
          foods = 0,
       }
 
-      finished = show_title_screen(stat, stage_win, stage_size)
-         or ingame_main(stat, game_state, stage_win, stage_size)
-         or show_result(stat, stage_win, stage_size, game_state.foods)
+      finished = show_title_screen(stat)
+         or ingame_main(stat, game_state)
+         or show_result(stat, game_state.foods)
    end
 
    clean_curses()
