@@ -196,6 +196,15 @@ function check_died(stat, gstat)
    end
 end
 
+function draw_snake(stat, gstat)
+   local stage_win, stage_size = stat.stage_win, stat.stage_size
+   put_string(stage_win, gstat.head_pos, "@")
+   local tail = gstat.trajectory[gstat.pos_in_trajectory]
+   if tail then
+      put_string(stage_win, tail, " ")
+   end
+end
+
 function ingame_main(stat, gstat)
    local finished = false
    local stage_win, stage_size = stat.stage_win, stat.stage_size
@@ -210,15 +219,15 @@ function ingame_main(stat, gstat)
 
       gstat.head_pos = next_position(gstat.head_pos, gstat.direction, stage_size)
 
-      put_string(stage_win, gstat.head_pos, "@")
-      local tail = gstat.trajectory[gstat.pos_in_trajectory]
-      if tail then
-         put_string(stage_win, tail, " ")
-      end
+      draw_snake(stat, gstat)
+      -- put_string(stage_win, gstat.head_pos, "@")
+      -- local tail = gstat.trajectory[gstat.pos_in_trajectory]
+      -- if tail then
+      --    put_string(stage_win, tail, " ")
+      -- end
 
       check_got_food(stat, gstat)
       check_died(stat, gstat)
-
 
       gstat.trajectory[gstat.pos_in_trajectory] = {x = gstat.head_pos.x, y = gstat.head_pos.y}
       gstat.pos_in_trajectory = (gstat.pos_in_trajectory + 1) % math.floor(gstat.length)
