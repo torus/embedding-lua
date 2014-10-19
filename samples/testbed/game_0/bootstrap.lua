@@ -196,6 +196,10 @@ function check_died(stat, gstat)
    end
 end
 
+function move_snake(stat, gstat)
+   gstat.head_pos = next_position(gstat.head_pos, gstat.direction, stat.stage_size)
+end
+
 function draw_snake(stat, gstat)
    local stage_win, stage_size = stat.stage_win, stat.stage_size
    put_string(stage_win, gstat.head_pos, "@")
@@ -217,8 +221,7 @@ function ingame_main(stat, gstat)
       finished, gstat.direction = stat:check_key_and_game_finished(gstat.direction)
       if finished then break end
 
-      gstat.head_pos = next_position(gstat.head_pos, gstat.direction, stage_size)
-
+      move_snake(stat, gstat)
       draw_snake(stat, gstat)
 
       check_got_food(stat, gstat)
