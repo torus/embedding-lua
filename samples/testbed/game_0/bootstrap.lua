@@ -33,6 +33,27 @@ function ModState:update_key()
    end
 end
 
+-------------
+
+InGameState = {}
+
+function InGameState:new(mod_state)
+   local o = {
+      mod_state = mod_state,
+      alive = true,
+      head_pos = random_position(mod_state.stage_size, 10),
+      direction = math.random(0, 3),
+      length = 10,
+      pos_in_trajectory = 1,
+      trajectory = {},
+      food_pos = random_position(mod_state.stage_size, 5),
+      foods = 0,
+   }
+
+   setmetatable(o, {__index = InGameState})
+   return o
+end
+
 function init_curses()
    local win = nc.initscr()
 
@@ -218,22 +239,23 @@ function draw_snake(stat, gstat)
    end
 end
 
-function ingame_main(stat, gstat)
+function InGameState:main()
+   local stat = self.mod_state
    local finished = false
 
-   put_string(stat.stage_win, gstat.food_pos, "#")
+   put_string(stat.stage_win, self.food_pos, "#")
 
-   while not finished and gstat.alive do
+   while not finished and self.alive do
       stat:update_key()
 
-      finished = check_key_and_game_finished(stat, gstat)
+      finished = check_key_and_game_finished(stat, self)
 
-      move_snake(stat, gstat)
+      move_snake(stat, self)
 
-      check_got_food(stat, gstat)
-      check_died(stat, gstat)
+      check_got_food(stat, self)
+      check_died(stat, self)
 
-      draw_snake(stat, gstat)
+      draw_snake(stat, self)
 
       nc.wrefresh(stat.stage_win)
       stat:next_frame()
@@ -259,19 +281,21 @@ function main_coro(stat, elapsed)
 
    while not finished do
       log("start: ", stat, " ", stat.stage_win)
-      game_state = {
-         alive = true,
-         head_pos = random_position(stat.stage_size, 10),
-         direction = math.random(0, 3),
-         length = 10,
-         pos_in_trajectory = 1,
-         trajectory = {},
-         food_pos = random_position(stat.stage_size, 5),
-         foods = 0,
-      }
+      -- game_state = {
+      --    alive = true,
+      --    head_pos = random_position(stat.stage_size, 10),
+      --    direction = math.random(0, 3),
+      --    length = 10,
+      --    pos_in_trajectory = 1,
+      --    trajectory = {},
+      --    food_pos = random_position(stat.stage_size, 5),
+      --    foods = 0,
+      -- }
+
+      game_state = InGameState:new(stat)
 
       finished = show_title_screen(stat)
-         or ingame_main(stat, game_state)
+         or game_state:main()
          or show_result(stat, game_state.foods)
    end
 
