@@ -220,9 +220,8 @@ end
 
 function ingame_main(stat, gstat)
    local finished = false
-   local stage_win, stage_size = stat.stage_win, stat.stage_size
 
-   put_string(stage_win, gstat.food_pos, "#")
+   put_string(stat.stage_win, gstat.food_pos, "#")
 
    while not finished and gstat.alive do
       stat:update_key()
@@ -236,7 +235,7 @@ function ingame_main(stat, gstat)
 
       draw_snake(stat, gstat)
 
-      nc.wrefresh(stage_win)
+      nc.wrefresh(stat.stage_win)
       stat:next_frame()
    end
 
