@@ -54,6 +54,8 @@ function ModState:show_title_screen()
    nc.werase(win)
    nc.touchwin(win)
    nc.wrefresh(win)
+   nc.box(win, 0, 0)
+
    local childwin = nc.subwin(win, 4, 30,
                               math.floor(stage_size.height / 2) - 1,
                               math.floor(stage_size.width / 2) - 15)
@@ -193,10 +195,18 @@ end
 function InGameState:check_died()
    local stat = self.mod_state
    local stage_win, stage_size = stat.stage_win, stat.stage_size
-   for i, v in ipairs(self.trajectory) do
-      if i ~= self.pos_in_trajectory and v.x == self.head_pos.x and v.y == self.head_pos.y then
+   local pos = self.head_pos
+
+   if pos.x == 0 or pos.x == stage_size.width - 1
+      or pos.y == 0 or pos.y == stage_size.height - 1 then
          self.alive = false
-         break
+         return
+   end
+
+   for i, v in ipairs(self.trajectory) do
+      if i ~= self.pos_in_trajectory and v.x == pos.x and v.y == pos.y then
+         self.alive = false
+         return
       end
    end
 end
