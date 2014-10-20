@@ -132,24 +132,6 @@ function InGameState:new(mod_state)
    return o
 end
 
-function init_curses()
-   local win = nc.initscr()
-
-   nc.keypad(nc.stdscr, true)
-   nc.nodelay(nc.stdscr, true)
-   nc.noecho()
-   nc.cbreak()
-   nc.curs_set(0)
-   nc.set_escdelay(0)
-   nc.touchwin(win)
-
-   return win
-end
-
-function clean_curses()
-   nc.endwin()
-end
-
 function InGameState:check_key_and_game_finished()
    local stat = self.mod_state
    local finished = false
@@ -266,6 +248,26 @@ function InGameState:main()
    end
 
    return finished
+end
+
+-------------
+
+function init_curses()
+   local win = nc.initscr()
+
+   nc.keypad(nc.stdscr, true)
+   nc.nodelay(nc.stdscr, true)
+   nc.noecho()
+   nc.cbreak()
+   nc.curs_set(0)
+   nc.set_escdelay(0)
+   nc.touchwin(win)
+
+   return win
+end
+
+function clean_curses()
+   nc.endwin()
 end
 
 function main_coro(stat, elapsed)
