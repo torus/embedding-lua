@@ -47,6 +47,70 @@ function ModState:next_frame()
    local stat, elapsed = coroutine.yield()
 end
 
+function ModState:show_title_screen()
+   local finished = false
+   local win, stage_size = self.stage_win, self.stage_size
+
+   nc.werase(win)
+   nc.touchwin(win)
+   nc.wrefresh(win)
+   local childwin = nc.subwin(win, 4, 30,
+                              math.floor(stage_size.height / 2) - 1,
+                              math.floor(stage_size.width / 2) - 15)
+   nc.box(childwin, 0, 0)
+
+   nc.mvwaddstr(childwin, 1, 4, "NCURSES SNAKE GAME");
+   nc.mvwaddstr(childwin, 2, 4, "Press ENTER to start");
+   nc.wrefresh(childwin)
+   while not finished do
+      self:update_key()
+      if self.key_state_down[27] then -- ESCAPE
+         finished = true
+      elseif self.key_state_down[10] then -- ENTER
+         break
+      end
+      self:next_frame()
+   end
+
+   nc.werase(childwin)
+   nc.delwin(childwin)
+
+   return finished
+end
+
+function ModState:show_result(foods)
+   local finished = false
+
+   local win, stage_size = self.stage_win, self.stage_size
+
+   nc.touchwin(win)
+   nc.wrefresh(win)
+   local childwin = nc.subwin(win, 5, 30,
+                              math.floor(stage_size.height / 2) - 1,
+                              math.floor(stage_size.width / 2) - 15)
+   nc.werase(childwin)
+   nc.box(childwin, 0, 0)
+
+   nc.mvwaddstr(childwin, 1, 4, "GAME OVER");
+   nc.mvwaddstr(childwin, 2, 4, string.format("Foods: %d", foods));
+   nc.mvwaddstr(childwin, 3, 4, "Press ENTER to Continue");
+   nc.wrefresh(childwin)
+   while not finished do
+      self:update_key()
+      if self.key_state_down[27] then -- ESCAPE
+         finished = true
+      elseif self.key_state_down[10] then -- ENTER
+         break
+      end
+      self:next_frame()
+   end
+
+   nc.werase(childwin)
+   nc.delwin(childwin)
+
+   return finished
+end
+
 -------------
 
 InGameState = {}
@@ -131,70 +195,6 @@ end
 
 function put_string(win, pos, str)
    nc.mvwaddstr(win, pos.y, pos.x, str)
-end
-
-function ModState:show_title_screen()
-   local finished = false
-   local win, stage_size = self.stage_win, self.stage_size
-
-   nc.werase(win)
-   nc.touchwin(win)
-   nc.wrefresh(win)
-   local childwin = nc.subwin(win, 4, 30,
-                              math.floor(stage_size.height / 2) - 1,
-                              math.floor(stage_size.width / 2) - 15)
-   nc.box(childwin, 0, 0)
-
-   nc.mvwaddstr(childwin, 1, 4, "NCURSES SNAKE GAME");
-   nc.mvwaddstr(childwin, 2, 4, "Press ENTER to start");
-   nc.wrefresh(childwin)
-   while not finished do
-      self:update_key()
-      if self.key_state_down[27] then -- ESCAPE
-         finished = true
-      elseif self.key_state_down[10] then -- ENTER
-         break
-      end
-      self:next_frame()
-   end
-
-   nc.werase(childwin)
-   nc.delwin(childwin)
-
-   return finished
-end
-
-function ModState:show_result(foods)
-   local finished = false
-
-   local win, stage_size = self.stage_win, self.stage_size
-
-   nc.touchwin(win)
-   nc.wrefresh(win)
-   local childwin = nc.subwin(win, 5, 30,
-                              math.floor(stage_size.height / 2) - 1,
-                              math.floor(stage_size.width / 2) - 15)
-   nc.werase(childwin)
-   nc.box(childwin, 0, 0)
-
-   nc.mvwaddstr(childwin, 1, 4, "GAME OVER");
-   nc.mvwaddstr(childwin, 2, 4, string.format("Foods: %d", foods));
-   nc.mvwaddstr(childwin, 3, 4, "Press ENTER to Continue");
-   nc.wrefresh(childwin)
-   while not finished do
-      self:update_key()
-      if self.key_state_down[27] then -- ESCAPE
-         finished = true
-      elseif self.key_state_down[10] then -- ENTER
-         break
-      end
-      self:next_frame()
-   end
-
-   nc.werase(childwin)
-   nc.delwin(childwin)
-
-   return finished
 end
 
 function InGameState:check_got_food()
