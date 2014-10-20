@@ -283,18 +283,6 @@ function main_coro(stat, elapsed)
    local game_state
 
    while not finished do
-      log("start: ", stat, " ", stat.stage_win)
-      -- game_state = {
-      --    alive = true,
-      --    head_pos = random_position(stat.stage_size, 10),
-      --    direction = math.random(0, 3),
-      --    length = 10,
-      --    pos_in_trajectory = 1,
-      --    trajectory = {},
-      --    food_pos = random_position(stat.stage_size, 5),
-      --    foods = 0,
-      -- }
-
       game_state = InGameState:new(stat)
 
       finished = show_title_screen(stat)
