@@ -133,9 +133,9 @@ function put_string(win, pos, str)
    nc.mvwaddstr(win, pos.y, pos.x, str)
 end
 
-function show_title_screen(stat)
+function ModState:show_title_screen()
    local finished = false
-   local win, stage_size = stat.stage_win, stat.stage_size
+   local win, stage_size = self.stage_win, self.stage_size
 
    nc.werase(win)
    nc.touchwin(win)
@@ -149,31 +149,32 @@ function show_title_screen(stat)
    nc.mvwaddstr(childwin, 2, 4, "Press ENTER to start");
    nc.wrefresh(childwin)
    while not finished do
-      stat:update_key()
-      if stat.key_state_down[27] then -- ESCAPE
+      self:update_key()
+      if self.key_state_down[27] then -- ESCAPE
          finished = true
-      elseif stat.key_state_down[10] then -- ENTER
+      elseif self.key_state_down[10] then -- ENTER
          break
       end
-      stat:next_frame()
+      self:next_frame()
    end
 
+   nc.werase(childwin)
    nc.delwin(childwin)
-   nc.werase(win)
 
    return finished
 end
 
-function show_result(stat, foods)
+function ModState:show_result(foods)
    local finished = false
 
-   local win, stage_size = stat.stage_win, stat.stage_size
+   local win, stage_size = self.stage_win, self.stage_size
 
    nc.touchwin(win)
    nc.wrefresh(win)
    local childwin = nc.subwin(win, 5, 30,
                               math.floor(stage_size.height / 2) - 1,
                               math.floor(stage_size.width / 2) - 15)
+   nc.werase(childwin)
    nc.box(childwin, 0, 0)
 
    nc.mvwaddstr(childwin, 1, 4, "GAME OVER");
@@ -181,17 +182,17 @@ function show_result(stat, foods)
    nc.mvwaddstr(childwin, 3, 4, "Press ENTER to Continue");
    nc.wrefresh(childwin)
    while not finished do
-      stat:update_key()
-      if stat.key_state_down[27] then -- ESCAPE
+      self:update_key()
+      if self.key_state_down[27] then -- ESCAPE
          finished = true
-      elseif stat.key_state_down[10] then -- ENTER
+      elseif self.key_state_down[10] then -- ENTER
          break
       end
-      stat:next_frame()
+      self:next_frame()
    end
 
+   nc.werase(childwin)
    nc.delwin(childwin)
-   nc.werase(win)
 
    return finished
 end
@@ -285,9 +286,9 @@ function main_coro(stat, elapsed)
    while not finished do
       game_state = InGameState:new(stat)
 
-      finished = show_title_screen(stat)
+      finished = stat:show_title_screen()
          or game_state:main()
-         or show_result(stat, game_state.foods)
+         or stat:show_result(game_state.foods)
    end
 
    clean_curses()
