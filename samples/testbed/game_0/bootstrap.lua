@@ -125,8 +125,8 @@ end
 
 function random_position(stage_size, offset)
    offset = offset or 0
-   return {x = offset + math.random(stage_size.width - offset) - 1,
-           y = offset + math.random(stage_size.height - offset) - 1}
+   return {x = offset + math.random(stage_size.width - 2 * offset) - 1,
+           y = offset + math.random(stage_size.height - 2 * offset) - 1}
 end
 
 function put_string(win, pos, str)
