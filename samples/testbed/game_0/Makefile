@@ -1,5 +1,5 @@
 TARGET = game-0
 
-TESTBED = ../testbed
+TESTBED = ../engine
 
 include $(TESTBED)/common.mak

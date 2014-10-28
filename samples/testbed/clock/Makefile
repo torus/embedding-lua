@@ -1,5 +1,5 @@
 TARGET = clock
 
-TESTBED = ../testbed
+TESTBED = ../engine
 
 include $(TESTBED)/common.mak
