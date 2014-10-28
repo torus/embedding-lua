@@ -5,7 +5,7 @@ int main(int argc, char **argv) {
     luaL_openlibs(L);
 
     if (luaL_dofile(L, "hello.lua")) {
-	fprintf(stderr, "Lua Error: %s", lua_tostring(L, -1));
+        fprintf(stderr, "Lua Error: %s\n", lua_tostring(L, -1));
     }
 
     lua_getglobal(L, "greeting");
