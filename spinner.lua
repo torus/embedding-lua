@@ -50,7 +50,7 @@ function include_code (filename, segment)
       if switch and not line:match("~~") then
          spin("    " .. line)
       end
-      if segment and not switch and line:match("~~<<%s*" .. segment) then
+      if segment and not switch and line:match("~~<<%s*" .. segment .. "%s*$") then
          -- print("switch on")
          switch = true
       end
