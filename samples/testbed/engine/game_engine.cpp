@@ -3,16 +3,20 @@
 #include <boost/timer/timer.hpp>
 #include "game_engine.hpp"
 
+//~~<<mainloop_init
 int game_main(int argc, char **argv, GameMod *t) {
     t->init();
     boost::timer::cpu_timer timer;
     boost::timer::nanosecond_type prev_time = 0;
+//~~>>
 
+//~~<<mainloop
     while (t->running()) {
         boost::timer::nanosecond_type elapsed = timer.elapsed().wall;
         t->update((elapsed - prev_time) / 1000000000.0);
         prev_time = elapsed;
     }
+//~~>>
 
     return 0;
 }
