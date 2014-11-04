@@ -25,13 +25,16 @@ int game_main(int argc, char **argv, GameMod *t) {
 
 extern "C" int luaopen_nc(lua_State*);
 
+//~~<<luaengine_ctor
 LuaGameEngine::LuaGameEngine() : GameMod(), L(luaL_newstate()), gameState_(0)
 {
     luaL_openlibs(L);
     luaopen_nc(L);
     dieIfFail(luaL_dofile(L, "bootstrap.lua"));
 }
+//~~>>
 
+//~~<<luaengine_die
 void LuaGameEngine::dieIfFail(int state) const
 {
     if (state) {
@@ -39,7 +42,9 @@ void LuaGameEngine::dieIfFail(int state) const
         throw LuaException(err);
     }
 }
+//~~>>
 
+//~~<<luaengine_init
 void LuaGameEngine::init()
 {
     StackCleaner cleaner(L);
@@ -48,7 +53,9 @@ void LuaGameEngine::init()
     dieIfFail(lua_pcall(L, 0, 1, 0));
     gameState_ = luaL_ref(L, LUA_REGISTRYINDEX);
 }
+//~~>>
 
+//~~<<luaengine_update
 void LuaGameEngine::update(double elapsed)
 {
     StackCleaner cleaner(L);
@@ -58,7 +65,9 @@ void LuaGameEngine::update(double elapsed)
     lua_pushnumber(L, elapsed);
     dieIfFail(lua_pcall(L, 2, 0, 0));
 }
+//~~>>
 
+//~~<<luaengine_running
 bool LuaGameEngine::running() const
 {
     StackCleaner cleaner(L);
@@ -70,3 +79,4 @@ bool LuaGameEngine::running() const
     int is_running = lua_toboolean(L, 1);
     return is_running == 1;
 }
+//~~>>
