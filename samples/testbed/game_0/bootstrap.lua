@@ -48,7 +48,7 @@ function ModState:next_frame()
 end
 
 function ModState:show_title_screen()
-   local finished = false
+   local running = true
    local win, stage_size = self.stage_win, self.stage_size
 
    nc.werase(win)
@@ -64,10 +64,10 @@ function ModState:show_title_screen()
    nc.mvwaddstr(childwin, 1, 4, "NCURSES SNAKE GAME");
    nc.mvwaddstr(childwin, 2, 4, "Press ENTER to start");
    nc.wrefresh(childwin)
-   while not finished do
+   while running do
       self:update_key()
       if self.key_state_down[27] then -- ESCAPE
-         finished = true
+         running = false
       elseif self.key_state_down[10] then -- ENTER
          break
       end
@@ -77,11 +77,11 @@ function ModState:show_title_screen()
    nc.werase(childwin)
    nc.delwin(childwin)
 
-   return finished
+   return running
 end
 
 function ModState:show_result(foods)
-   local finished = false
+   local running = true
 
    local win, stage_size = self.stage_win, self.stage_size
 
@@ -97,10 +97,10 @@ function ModState:show_result(foods)
    nc.mvwaddstr(childwin, 2, 4, string.format("Foods: %d", foods));
    nc.mvwaddstr(childwin, 3, 4, "Press ENTER to Continue");
    nc.wrefresh(childwin)
-   while not finished do
+   while running do
       self:update_key()
       if self.key_state_down[27] then -- ESCAPE
-         finished = true
+         running = false
       elseif self.key_state_down[10] then -- ENTER
          break
       end
@@ -110,7 +110,7 @@ function ModState:show_result(foods)
    nc.werase(childwin)
    nc.delwin(childwin)
 
-   return finished
+   return running
 end
 
 -------------
@@ -134,12 +134,12 @@ function InGameState:new(mod_state)
    return o
 end
 
-function InGameState:check_key_and_game_finished()
+function InGameState:check_key_and_game_running()
    local stat = self.mod_state
-   local finished = false
+   local running = true
 
    if stat.key_state_down[27] then
-      finished = true
+      running = false
    elseif stat.key_state_down[nc.KEY_RIGHT] then
       self.direction = 0
    elseif stat.key_state_down[nc.KEY_DOWN] then
@@ -150,7 +150,7 @@ function InGameState:check_key_and_game_finished()
       self.direction = 3
    end
 
-   return finished
+   return running
 end
 
 function next_position(pos, dir, stage_size)
@@ -239,14 +239,14 @@ end
 
 function InGameState:main()
    local stat = self.mod_state
-   local finished = false
+   local running = true
 
    put_string(stat.stage_win, self.food_pos, "#")
 
-   while not finished and self.alive do
+   while running and self.alive do
       stat:update_key()
 
-      finished = self:check_key_and_game_finished()
+      running = self:check_key_and_game_running()
 
       self:move_snake()
       self:check_got_food()
@@ -257,7 +257,7 @@ function InGameState:main()
       stat:next_frame()
    end
 
-   return finished
+   return running
 end
 
 -------------
@@ -297,15 +297,15 @@ function main_coro(stat, elapsed)
 --~~>>
 
 --~~<<main_coro_loop
-   local finished = false
+   local running = true
    local game_state
 
-   while not finished do
+   while running do
       game_state = InGameState:new(stat)
 
-      finished = stat:show_title_screen()
-         or game_state:main()
-         or stat:show_result(game_state.foods)
+      running = stat:show_title_screen()
+         and game_state:main()
+         and stat:show_result(game_state.foods)
    end
 
    clean_curses()
