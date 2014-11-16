@@ -1,8 +1,11 @@
+//~~<<includes
 #include <ctime>
 #include <cmath>
 #include <boost/timer/timer.hpp>
 #include <game_engine.hpp>
+//~~>>
 
+//~~<<sleep
 extern "C" int luafunc_sleep(lua_State *L)
 {
     double duration = lua_tonumber(L, 1);
@@ -13,7 +16,9 @@ extern "C" int luafunc_sleep(lua_State *L)
 
     return 0;
 }
+//~~>>
 
+//~~<<elapsed_time
 static boost::timer::cpu_timer timer;
 
 extern "C" int luafunc_elapsed_time(lua_State *L)
@@ -24,7 +29,9 @@ extern "C" int luafunc_elapsed_time(lua_State *L)
 
     return 1;
 }
+//~~>>
 
+//~~<<main
 int main(int argc, char **argv) {
     LuaGameEngine engine;
 
@@ -32,3 +39,4 @@ int main(int argc, char **argv) {
     lua_register(engine.luaState(), "elapsed_time", luafunc_elapsed_time);
     game_main(argc, argv, &engine);
 }
+//~~>>

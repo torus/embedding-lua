@@ -279,19 +279,24 @@ end
 function clean_curses()
    nc.endwin()
 end
+--~~>>
 
+--~~<<main_coro_init
 function main_coro(stat, elapsed)
    local root_win = init_curses()
 
    stat:next_frame()
-
+--~~>>
+--~~<<main_coro_screen
    local width, height = nc.getmaxx(nc.stdscr), nc.getmaxy(nc.stdscr)
    nc.mvaddstr(0, 1, string.format("size: % 3d, % 3d     press ESC to quit",
                                    width, height))
 
    stat.stage_size = {width = width, height = height - 1}
    stat.stage_win = nc.subwin(root_win, height - 1, width, 1, 0)
+--~~>>
 
+--~~<<main_coro_loop
    local finished = false
    local game_state
 
@@ -305,7 +310,9 @@ function main_coro(stat, elapsed)
 
    clean_curses()
 end
+--~~>>
 
+--~~<<init
 function init()
    local o = {
       name = "game-0",
@@ -315,7 +322,9 @@ function init()
    setmetatable(o, {__index = ModState})
    return o
 end
+--~~>>
 
+--~~<<update
 function update(stat, elapsed)
    local success, err = coroutine.resume(stat.coro, stat, elapsed)
    if not success then
@@ -323,7 +332,10 @@ function update(stat, elapsed)
       error(err)
    end
 end
+--~~>>
 
+--~~<<running
 function running(stat)
    return coroutine.status(stat.coro) ~= "dead"
 end
+--~~>>
