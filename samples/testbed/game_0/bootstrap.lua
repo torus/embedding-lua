@@ -47,6 +47,7 @@ function ModState:next_frame()
    local stat, elapsed = coroutine.yield()
 end
 
+--~~<<title_draw
 function ModState:show_title_screen()
    local running = true
    local win, stage_size = self.stage_win, self.stage_size
@@ -64,6 +65,8 @@ function ModState:show_title_screen()
    nc.mvwaddstr(childwin, 1, 4, "NCURSES SNAKE GAME");
    nc.mvwaddstr(childwin, 2, 4, "Press ENTER to start");
    nc.wrefresh(childwin)
+--~~>>
+--~~<<title_input
    while running do
       self:update_key()
       if self.key_state_down[27] then -- ESCAPE
@@ -73,12 +76,15 @@ function ModState:show_title_screen()
       end
       self:next_frame()
    end
+--~~>>
 
+--~~<<title_cleanup
    nc.werase(childwin)
    nc.delwin(childwin)
 
    return running
 end
+--~~>>
 
 function ModState:show_result(foods)
    local running = true
@@ -262,6 +268,7 @@ end
 
 -------------
 
+--~~<<init_curses
 function init_curses()
    local win = nc.initscr()
 

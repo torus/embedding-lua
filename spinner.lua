@@ -37,10 +37,11 @@ function codetmp (proc)
    os.remove(filename)
 end
 
-function include_code (filename, segment)
+function include_code (filename, segment, lang)
    local infile = io.open(filename)
    local switch = not segment
    -- print("switch", switch, segment)
+   spin("```" .. (lang or ""))
    for line in infile:lines() do
       -- print("line", line)
       if segment and switch and line:match("~~>>") then
@@ -48,12 +49,13 @@ function include_code (filename, segment)
          switch = false
       end
       if switch and not line:match("~~") then
-         spin("    " .. line)
+         spin(line)
       end
       if segment and not switch and line:match("~~<<%s*" .. segment .. "%s*$") then
          -- print("switch on")
          switch = true
       end
    end
+   spin("```")
    infile:close()
 end

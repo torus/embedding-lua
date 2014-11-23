@@ -1,12 +1,11 @@
 LUA = $(HOME)/local/lua/bin/lua
-# MARKDOWN = perl md2html.pl
-# MARKDOWN = Markdown.pl
-MARKDOWN = markdown
+# MARKDOWN = markdown $(1) >> $(2)
+MARKDOWN = grip --gfm --export $(1) $(2)
 MD_SRC_DIR = ../wiki
 DOCPUB_DIR = docpub
 
-HTML_HEADER = header.html
-HTML_FOOTER = footer.html
+# HTML_HEADER = header.html
+# HTML_FOOTER = footer.html
 
 MD_SRCS = $(wildcard $(MD_SRC_DIR)/*.md)
 PAGES = $(basename $(notdir $(MD_SRCS)))
@@ -67,9 +66,9 @@ $(HTMLS): html
 $(MDS): eg md
 
 html/%.html: md/%.md
-	cat $(HTML_HEADER) > $@
-	$(MARKDOWN) $< >> $@
-	cat $(HTML_FOOTER) >> $@
+#	cat $(HTML_HEADER) > $@
+	$(call MARKDOWN,$<,$@)
+#	cat $(HTML_FOOTER) >> $@
 
 lua eg md html:
 	mkdir $@
