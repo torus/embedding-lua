@@ -33,6 +33,7 @@ function ModState:update_key()
    end
 end
 
+--~~<<next_frame
 function ModState:next_frame()
    local prev_time = self.frame_start_time
    local cur_time = elapsed_time()
@@ -46,6 +47,7 @@ function ModState:next_frame()
    self.frame_start_time = elapsed_time()
    local stat, elapsed = coroutine.yield()
 end
+--~~>>
 
 --~~<<title_draw
 function ModState:show_title_screen()
@@ -86,6 +88,7 @@ function ModState:show_title_screen()
 end
 --~~>>
 
+--~~<<show_result
 function ModState:show_result(foods)
    local running = true
 
@@ -98,11 +101,15 @@ function ModState:show_result(foods)
                               math.floor(stage_size.width / 2) - 15)
    nc.werase(childwin)
    nc.box(childwin, 0, 0)
+--~~>>
 
+--~~<<show_result_display
    nc.mvwaddstr(childwin, 1, 4, "GAME OVER");
    nc.mvwaddstr(childwin, 2, 4, string.format("Foods: %d", foods));
    nc.mvwaddstr(childwin, 3, 4, "Press ENTER to Continue");
    nc.wrefresh(childwin)
+--~~>>
+--~~<<show_result_loop
    while running do
       self:update_key()
       if self.key_state_down[27] then -- ESCAPE
@@ -118,6 +125,7 @@ function ModState:show_result(foods)
 
    return running
 end
+--~~>>
 
 -------------
 
@@ -187,6 +195,7 @@ function put_string(win, pos, str)
    nc.mvwaddstr(win, pos.y, pos.x, str)
 end
 
+--~~<<check_got_food
 function InGameState:check_got_food()
    local stat = self.mod_state
    if self.head_pos.x == self.food_pos.x and self.head_pos.y == self.food_pos.y then
@@ -197,7 +206,9 @@ function InGameState:check_got_food()
       put_string(stat.stage_win, self.food_pos, "#")
    end
 end
+--~~>>
 
+--~~<<check_died_collided_with_frame
 function InGameState:check_died()
    local stat = self.mod_state
    local stage_win, stage_size = stat.stage_win, stat.stage_size
@@ -208,7 +219,9 @@ function InGameState:check_died()
          self.alive = false
          return
    end
+--~~>>
 
+--~~<<check_died_collided_with_self
    for i, v in ipairs(self.trajectory) do
       if i ~= self.pos_in_trajectory and v.x == pos.x and v.y == pos.y then
          self.alive = false
@@ -216,13 +229,16 @@ function InGameState:check_died()
       end
    end
 end
+--~~>>
 
+--~~<<move_snake
 function InGameState:move_snake()
    local stat = self.mod_state
    self.trajectory[self.pos_in_trajectory] = {x = self.head_pos.x, y = self.head_pos.y}
    self.pos_in_trajectory = self.pos_in_trajectory % math.floor(self.length) + 1
    self.head_pos = next_position(self.head_pos, self.direction, stat.stage_size)
 end
+--~~>>
 
 function InGameState:draw_snake()
    local stat = self.mod_state
@@ -243,12 +259,15 @@ function InGameState:draw_snake()
    end
 end
 
+--~~<<ingame_main
 function InGameState:main()
    local stat = self.mod_state
    local running = true
 
    put_string(stat.stage_win, self.food_pos, "#")
+--~~>>
 
+--~~<<ingame_main_loop
    while running and self.alive do
       stat:update_key()
 
@@ -262,9 +281,12 @@ function InGameState:main()
       nc.wrefresh(stat.stage_win)
       stat:next_frame()
    end
+--~~>>
 
+--~~<<ingame_main_return
    return running
 end
+--~~>>
 
 -------------
 
