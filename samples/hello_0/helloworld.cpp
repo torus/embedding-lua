@@ -12,9 +12,9 @@ int luafunc_hello(lua_State *L)
 }
 //~~>>
 
+//~~<<prepare
 int main(int argc, char **argv)
 {
-//~~<<prepare
     lua_State *L = luaL_newstate();
     luaL_openlibs(L);
 //~~>>
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     if (luaL_dostring(L, "hello('Lua')")) {
         std::cerr << "Lua Error: " << lua_tostring(L, -1) << std::endl;
     }
-//~~>>
 
     return 0;
 }
+//~~>>
