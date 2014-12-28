@@ -5,18 +5,18 @@ LUASRCS = lapi.c lauxlib.c lbaselib.c lbitlib.c lcode.c lcorolib.c      \
           lstrlib.c ltable.c ltablib.c ltm.c lundump.c lvm.c lzio.c
 
 LUAOBJS = $(patsubst %.c,lua-5.2.2/src/%.o,$(LUASRCS))
-OBJS = $(LUAOBJS) helloworld.o
+OBJS = $(LUAOBJS) helloagain.o
 
 CFLAGS = -Ilua-5.2.2/src
 LFLAGS = -lm
 
-TARGET = helloworld
+TARGET = helloagain
 
 run: $(TARGET)
 	./$^
 
 $(TARGET): $(OBJS)
-	$(CXX) -o $@ $(LFLAGS) $^
+	$(CC) -o $@ $(LFLAGS) $^
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $^

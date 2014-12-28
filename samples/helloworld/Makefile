@@ -16,7 +16,7 @@ run: $(TARGET)
 	./$^
 
 $(TARGET): $(OBJS)
-	$(CC) -o $@ $(LFLAGS) $^
+	$(CXX) -o $@ $(LFLAGS) $^
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $^

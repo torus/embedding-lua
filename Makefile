@@ -1,6 +1,6 @@
 LUA = $(HOME)/local/lua/bin/lua
 # MARKDOWN = markdown $(1) >> $(2)
-MARKDOWN = grip --gfm --export $(1) $(2)
+MARKDOWN = grip --gfm --export $(1) $(2) `cat GRIPOPTS`
 MD_SRC_DIR = ../wiki
 DOCPUB_DIR = docpub
 
@@ -21,15 +21,17 @@ WRAPPER_OBJS = $(patsubst %.cxx,%.o,$(WRAPPERS))
 # 	echo $(PAGES)
 # 	echo $(HTMLS)
 
-.PHONY: test-swig list-todos hello-world hello-0
+.PHONY: test-swig list-todos hello-world hello-again
 
-all: $(HTMLS) test-swig list-todos hello-world hello-0
+pages: $(HTMLS)
+
+all: test-swig list-todos hello-world hello-again
 
 hello-world:
 	$(MAKE) -C samples/helloworld
 
-hello-0:
-	$(MAKE) -C samples/hello_0
+hello-again:
+	$(MAKE) -C samples/helloagain
 
 list-todos:
 	@echo Remaning TODOs...
@@ -59,7 +61,7 @@ md/%.md: lua/%.lua
 	$(LUA) $< > $@
 
 lua/%.lua: $(MD_SRC_DIR)/%.md
-	$(LUA) tang.lua $^ > $@
+	$(LUA) tang.lua $< > $@
 
 $(LUAS): lua tang.lua
 $(HTMLS): html
