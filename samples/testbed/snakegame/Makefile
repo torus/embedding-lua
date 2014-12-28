@@ -1,4 +1,4 @@
-TARGET = game-0
+TARGET = snakegame
 
 TESTBED = ../engine
 
