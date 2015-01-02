@@ -1,9 +1,0 @@
-/md
-/lua
-/eg
-/html
-
-*.so
-*_wrap.c
-lua_call
-GRIPOPTS
