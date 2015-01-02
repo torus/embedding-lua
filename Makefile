@@ -1,11 +1,8 @@
-LUA = $(HOME)/local/lua/bin/lua
+LUA = lua
 # MARKDOWN = markdown $(1) >> $(2)
 MARKDOWN = grip --gfm --export $(1) $(2) `cat GRIPOPTS`
 MD_SRC_DIR = ../wiki
 DOCPUB_DIR = docpub
-
-# HTML_HEADER = header.html
-# HTML_FOOTER = footer.html
 
 MD_SRCS = $(wildcard $(MD_SRC_DIR)/*.md)
 PAGES = $(basename $(notdir $(MD_SRCS)))
@@ -16,10 +13,6 @@ DOCPUB_MDS = $(addprefix $(DOCPUB_DIR)/md/,$(addsuffix .md,$(PAGES)))
 
 WRAPPERS = $(patsubst %.i,%_wrap.cxx,$(wildcard eg/*.i))
 WRAPPER_OBJS = $(patsubst %.cxx,%.o,$(WRAPPERS))
-
-# test:
-# 	echo $(PAGES)
-# 	echo $(HTMLS)
 
 .PHONY: test-swig list-todos hello-world hello-again
 
@@ -68,12 +61,10 @@ $(HTMLS): html
 $(MDS): eg md
 
 html/%.html: md/%.md
-#	cat $(HTML_HEADER) > $@
 	$(call MARKDOWN,$<,$@)
-#	cat $(HTML_FOOTER) >> $@
 
 lua eg md html:
 	mkdir $@
 
 clean:
-	rm -rf lua eg md html *~
+	rm -rf lua eg md html/*.html *~
