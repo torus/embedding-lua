@@ -1,21 +1,30 @@
-LUA_DIR = $(HOME)/local/lua
+LUASRCS = lapi.c lauxlib.c lbaselib.c lbitlib.c lcode.c lcorolib.c      \
+          lctype.c ldblib.c ldebug.c ldo.c ldump.c lfunc.c lgc.c        \
+          linit.c liolib.c llex.c lmathlib.c lmem.c loadlib.c           \
+          lobject.c lopcodes.c loslib.c lparser.c lstate.c lstring.c    \
+          lstrlib.c ltable.c ltablib.c ltm.c lundump.c lvm.c lzio.c
+LUADIR = ../../lua-5.2.3
+LUAOBJS = $(patsubst %.c,$(LUADIR)/src/%.o,$(LUASRCS))
 
-ENGINE_OBJS = ncurses_wrap.o game_engine.o
-OBJECTS = $(patsubst %.o,$(TESTBED)/%.o,$(ENGINE_OBJS)) main.o
-CFLAGS = -I$(LUA_DIR)/include -I$(TESTBED)
-LFLAGS = -L$(LUA_DIR)/lib -lboost_timer -lboost_system -lncurses -llua
+ENGINEOBJS_BASE = ncurses_wrap.o game_engine.o
+ENGINEOBJS = $(patsubst %.o,$(TESTBED)/%.o,$(ENGINEOBJS_BASE)) main.o
 
-all: $(TARGET)
-	./$(TARGET)
+OBJS = $(LUAOBJS) $(ENGINEOBJS)
 
-$(TESTBED)/ncurses_wrap.cpp:
-	$(MAKE) -C $(TESTBED) ncurses_wrap.cpp
+CFLAGS = -I$(LUADIR)/src -I$(TESTBED)
+LFLAGS = -lm -lboost_timer -lboost_system -lncurses
 
-$(TARGET): $(OBJECTS)
-	$(CXX) -o $@ $^ $(LFLAGS)
+run: $(TARGET)
+	./$^
+
+$(TARGET): $(OBJS)
+	$(CXX) -o $@ $(LFLAGS) $^
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) -o $@ $^
 
 %.o: %.cpp
-	$(CXX) -c -o $@ $(CFLAGS) $^
+	$(CXX) -c $(CFLAGS) -o $@ $^
 
 clean:
-	rm -f *.o *~ $(TARGET)
+	rm -f $(OBJS) $(TARGET) *~

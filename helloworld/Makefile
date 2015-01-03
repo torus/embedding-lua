@@ -3,11 +3,11 @@ LUASRCS = lapi.c lauxlib.c lbaselib.c lbitlib.c lcode.c lcorolib.c      \
           linit.c liolib.c llex.c lmathlib.c lmem.c loadlib.c           \
           lobject.c lopcodes.c loslib.c lparser.c lstate.c lstring.c    \
           lstrlib.c ltable.c ltablib.c ltm.c lundump.c lvm.c lzio.c
-
-LUAOBJS = $(patsubst %.c,lua-5.2.2/src/%.o,$(LUASRCS))
+LUADIR = ../lua-5.2.3
+LUAOBJS = $(patsubst %.c,$(LUADIR)/src/%.o,$(LUASRCS))
 OBJS = $(LUAOBJS) helloworld.o
 
-CFLAGS = -Ilua-5.2.2/src
+CFLAGS = -I$(LUADIR)/src
 LFLAGS = -lm
 
 TARGET = helloworld
