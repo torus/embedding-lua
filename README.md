@@ -1,9 +1,9 @@
-Lua組み込みプログラミング
+『Lua 組み込みプログラミング』サポートサイト
 =============
 
 http://www.amazon.co.jp/dp/B015OC9TM8
 
-サンプルコード置き場です。
+このリポジトリはサンプルコード置き場です。
 
 -   examples: 本文中に登場したコード
 -   helloworld、helloagain: 本文で紹介しているプログラムとビルドに必要な Makefile など
